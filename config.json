@@ -40,6 +40,12 @@
       "enabled": true,
       "api-key": "<your-api-key>",
       "max-rpm": "20"
+    },
+    {
+      "name": "valhalla",
+      "enabled": true,
+      "api-key": "not-needed!",
+      "max-rpm": "60"
     }
   ]
 }

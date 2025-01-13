@@ -6,12 +6,13 @@ This tool compares the travel times obtained from [TravelTime Routes API](https:
 [HERE Routing API](https://www.here.com/docs/bundle/routing-api-v8-api-reference),
 [Mapbox Directions API](https://docs.mapbox.com/api/navigation/directions/),
 [OpenRoutes API](https://openrouteservice.org/dev/#/api-docs/v2/directions/%7Bprofile%7D/get),
-and [OSRM Routes API](https://project-osrm.org/docs/v5.5.1/api/?language=cURL#route-service).
+[OSRM Routes API](https://project-osrm.org/docs/v5.5.1/api/?language=cURL#route-service),
+and [Valhalla Routes API](https://valhalla.github.io/valhalla/api/turn-by-turn/api-reference/).
 Source code is available on [GitHub](https://github.com/traveltime-dev/traveltime-google-comparison).
 
 ## Features
 
-- Get travel times from TravelTime API, Google Maps API, TomTom API, HERE API, Mapbox API and OSRM API in parallel, for provided origin/destination pairs and a set 
+- Get travel times from TravelTime API, Google Maps API, TomTom API, HERE API, Mapbox API, OSRM API and Valhalla API in parallel, for provided origin/destination pairs and a set 
     of departure times.
 - Departure times are calculated based on user provided start time, end time and interval.  
 - Analyze the differences between the results and print out the average error percentage.
