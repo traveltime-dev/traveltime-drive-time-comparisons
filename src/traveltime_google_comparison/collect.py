@@ -21,6 +21,7 @@ OSRM_API = "osrm"
 MAPBOX_API = "mapbox"
 TRAVELTIME_API = "traveltime"
 OPENROUTES_API = "openroutes"
+VALHALLA_API = "valhalla"
 
 
 def get_capitalized_provider_name(provider: str) -> str:
@@ -34,6 +35,8 @@ def get_capitalized_provider_name(provider: str) -> str:
         return "OSRM"
     elif provider == "openroutes":
         return "OpenRoutes"
+    elif provider == "valhalla":
+        return "Valhalla"
     elif provider == "mapbox":
         return "Mapbox"
     elif provider == "traveltime":
@@ -54,6 +57,7 @@ class Fields:
         OSRM_API: "osrm_travel_time",
         MAPBOX_API: "mapbox_travel_time",
         OPENROUTES_API: "openroutes_travel_time",
+        VALHALLA_API: "valhalla_travel_time",
         TRAVELTIME_API: "tt_travel_time",
     }
 
