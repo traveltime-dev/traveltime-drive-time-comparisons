@@ -8,7 +8,7 @@ This tool compares the travel times obtained from [TravelTime Routes API](https:
 [OpenRoutes API](https://openrouteservice.org/dev/#/api-docs/v2/directions/%7Bprofile%7D/get),
 [OSRM Routes API](https://project-osrm.org/docs/v5.5.1/api/?language=cURL#route-service),
 and [Valhalla Routes API](https://valhalla.github.io/valhalla/api/turn-by-turn/api-reference/).
-Source code is available on [GitHub](https://github.com/traveltime-dev/traveltime-google-comparison).
+Source code is available on [GitHub](https://github.com/traveltime-dev/traveltime-drive-time-comparisons).
 
 ## Features
 
@@ -34,7 +34,7 @@ source env/bin/activate
 
 Install the project and its dependencies:
 ```bash
-pip install traveltime-google-comparison
+pip install traveltime-drive-time-comparisons
 ```
 
 ## Setup
@@ -72,7 +72,7 @@ Required arguments:
     row with data, with two columns: `origin` and `destination`.
     The values in the columns must be latitude and longitude pairs, separated 
     by comma and enclosed in double quotes. For example: `"51.5074,-0.1278"`. Columns must be separated by comma as well.
-    Check out the [project's repository](https://github.com/traveltime-dev/traveltime-google-comparison.git) 
+    Check out the [project's repository](https://github.com/traveltime-dev/traveltime-drive-time-comparisons.git) 
     for examples in the `examples` directory and more pre-prepared routes in the `inputs` directory.
 - `--output [Output CSV file path]`: Path to the output file. It will contain the gathered travel times. 
   See the details in the [Output section](#output)
