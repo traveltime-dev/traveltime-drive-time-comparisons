@@ -6,7 +6,7 @@ from typing import List
 import pandas
 from traveltimepy.http import json
 
-from traveltime_google_comparison.requests.traveltime_credentials import (
+from traveltime_drive_time_comparisons.requests.traveltime_credentials import (
     Credentials,
 )
 

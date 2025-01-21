@@ -3,12 +3,12 @@ from dataclasses import dataclass
 
 from pandas import DataFrame
 
-from traveltime_google_comparison.collect import (
+from traveltime_drive_time_comparisons.collect import (
     Fields,
     TRAVELTIME_API,
     get_capitalized_provider_name,
 )
-from traveltime_google_comparison.config import Providers
+from traveltime_drive_time_comparisons.config import Providers
 
 
 def absolute_error(api_provider: str) -> str:

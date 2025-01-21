@@ -1,4 +1,4 @@
-# TravelTime/Google comparison tool
+# TravelTime Drive Time Comparisons tool
 
 This tool compares the travel times obtained from [TravelTime Routes API](https://docs.traveltime.com/api/reference/routes),
 [Google Maps Directions API](https://developers.google.com/maps/documentation/directions/get-directions),
@@ -63,7 +63,7 @@ You can also disable unwanted APIs by changing the `enabled` value to `false`.
 ## Usage
 Run the tool:
 ```bash
-traveltime_google_comparison --input [Input CSV file path] --output [Output CSV file path] \
+traveltime_drive_time_comparisons --input [Input CSV file path] --output [Output CSV file path] \
     --date [Date (YYYY-MM-DD)] --start-time [Start time (HH:MM)] --end-time [End time (HH:MM)] \
     --interval [Interval in minutes] --time-zone-id [Time zone ID] 
 ```
@@ -93,7 +93,7 @@ Optional arguments:
 Example:
 
 ```bash
-traveltime_google_comparison --input examples/uk.csv --output output.csv --date 2023-09-20 \
+traveltime_drive_time_comparisons --input examples/uk.csv --output output.csv --date 2023-09-20 \
     --start-time 07:00 --end-time 20:00 --interval 180 --time-zone-id "Europe/London"
 ```
 
@@ -106,10 +106,10 @@ included). But for interval equal to 300, the script will sample APIs for depart
 is not included).
 
 ## Output
-The output file will contain the `origin` and `destination` columns from input file, with additional 4 columns: 
+The output file will contain the `origin` and `destination` columns from input file, with additional some columns: 
   - `departure_time`: departure time in `YYYY-MM-DD HH:MM:SS±HHMM` format, calculated from the start-time, end-time and interval.
     It includes date, time and timezone offset.
-  - `google_travel_time`: travel time gathered from Google Directions API in seconds
+  - `*_travel_time`: travel time gathered from alternative provider API in seconds
   - `tt_travel_time`: travel time gathered from TravelTime API in seconds
   - `error_percentage_*`: relative error between provider and TravelTime travel times in percent, relative to provider result.
 

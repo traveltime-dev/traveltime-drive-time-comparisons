@@ -7,7 +7,7 @@ from typing import Optional
 from aiolimiter import AsyncLimiter
 from traveltimepy import Coordinates
 
-from traveltime_google_comparison.config import Mode
+from traveltime_drive_time_comparisons.config import Mode
 
 
 @dataclass
