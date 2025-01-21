@@ -106,7 +106,7 @@ included). But for interval equal to 300, the script will sample APIs for depart
 is not included).
 
 ## Output
-The output file will contain the `origin` and `destination` columns from input file, with additional some columns: 
+The output file will contain the `origin` and `destination` columns from input file, with some additional columns: 
   - `departure_time`: departure time in `YYYY-MM-DD HH:MM:SS±HHMM` format, calculated from the start-time, end-time and interval.
     It includes date, time and timezone offset.
   - `*_travel_time`: travel time gathered from alternative provider API in seconds
