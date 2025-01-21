@@ -1,14 +1,14 @@
 import pandas as pd
-from traveltime_google_comparison.analysis import (
+from traveltime_drive_time_comparisons.analysis import (
     QuantileErrorResult,
     absolute_error,
     calculate_differences,
     calculate_quantiles,
     relative_error,
 )
-from traveltime_google_comparison.collect import GOOGLE_API, TRAVELTIME_API, Fields
-from traveltime_google_comparison.config import Provider, Providers
-from traveltime_google_comparison.requests.traveltime_credentials import (
+from traveltime_drive_time_comparisons.collect import GOOGLE_API, TRAVELTIME_API, Fields
+from traveltime_drive_time_comparisons.config import Provider, Providers
+from traveltime_drive_time_comparisons.requests.traveltime_credentials import (
     Credentials,
 )
 

@@ -1,11 +1,11 @@
 import pytest
 
-from traveltime_google_comparison.config import (
+from traveltime_drive_time_comparisons.config import (
     Provider,
     Providers,
     parse_json_to_providers,
 )
-from traveltime_google_comparison.requests.traveltime_credentials import (
+from traveltime_drive_time_comparisons.requests.traveltime_credentials import (
     Credentials,
 )
 

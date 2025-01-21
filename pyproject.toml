@@ -41,6 +41,6 @@ test = [
 ]
 
 [project.scripts]
-traveltime_google_comparison = "traveltime_google_comparison.main:main"
+traveltime_drive_time_comparisons = "traveltime_drive_time_comparisons.main:main"
 
 [tool.setuptools_scm]

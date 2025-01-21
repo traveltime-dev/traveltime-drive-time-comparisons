@@ -10,8 +10,8 @@ from pandas import DataFrame
 from pytz.tzinfo import BaseTzInfo
 from traveltimepy import Coordinates
 
-from traveltime_google_comparison.config import Mode
-from traveltime_google_comparison.requests.base_handler import BaseRequestHandler
+from traveltime_drive_time_comparisons.config import Mode
+from traveltime_drive_time_comparisons.requests.base_handler import BaseRequestHandler
 
 
 GOOGLE_API = "google"

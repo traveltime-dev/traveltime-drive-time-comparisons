@@ -3,8 +3,8 @@ from enum import Enum
 import pytest
 from traveltimepy import Driving, PublicTransport
 
-from traveltime_google_comparison.config import Mode
-from traveltime_google_comparison.requests.traveltime_handler import (
+from traveltime_drive_time_comparisons.config import Mode
+from traveltime_drive_time_comparisons.requests.traveltime_handler import (
     get_traveltime_specific_mode,
 )
 

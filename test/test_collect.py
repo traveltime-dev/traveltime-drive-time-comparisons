@@ -4,7 +4,7 @@ from datetime import datetime
 import pytz
 from traveltimepy import Coordinates
 
-from traveltime_google_comparison.collect import (
+from traveltime_drive_time_comparisons.collect import (
     generate_time_instants,
     parse_coordinates,
     localize_datetime,

@@ -3,12 +3,12 @@ import logging
 
 import pandas as pd
 
-from traveltime_google_comparison import collect
-from traveltime_google_comparison import config
-from traveltime_google_comparison.analysis import run_analysis
-from traveltime_google_comparison.config import parse_config
-from traveltime_google_comparison.collect import Fields
-from traveltime_google_comparison.requests import factory
+from traveltime_drive_time_comparisons import collect
+from traveltime_drive_time_comparisons import config
+from traveltime_drive_time_comparisons.analysis import run_analysis
+from traveltime_drive_time_comparisons.config import parse_config
+from traveltime_drive_time_comparisons.collect import Fields
+from traveltime_drive_time_comparisons.requests import factory
 
 logging.basicConfig(
     level=logging.INFO,

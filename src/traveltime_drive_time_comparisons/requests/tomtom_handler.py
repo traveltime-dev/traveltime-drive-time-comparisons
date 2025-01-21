@@ -4,8 +4,8 @@ from datetime import datetime
 import aiohttp
 from traveltimepy import Coordinates
 
-from traveltime_google_comparison.config import Mode
-from traveltime_google_comparison.requests.base_handler import (
+from traveltime_drive_time_comparisons.config import Mode
+from traveltime_drive_time_comparisons.requests.base_handler import (
     BaseRequestHandler,
     RequestResult,
     create_async_limiter,
@@ -14,12 +14,12 @@ from traveltime_google_comparison.requests.base_handler import (
 logger = logging.getLogger(__name__)
 
 
-class MapboxApiError(Exception):
+class TomTomApiError(Exception):
     pass
 
 
-class MapboxRequestHandler(BaseRequestHandler):
-    MAPBOX_ROUTES_URL = "https://api.mapbox.com/directions/v5/mapbox"
+class TomTomRequestHandler(BaseRequestHandler):
+    TOMTOM_ROUTING_URL = "https://api.tomtom.com/routing/1/calculateRoute/"
 
     default_timeout = aiohttp.ClientTimeout(total=60)
 
@@ -32,44 +32,46 @@ class MapboxRequestHandler(BaseRequestHandler):
         origin: Coordinates,
         destination: Coordinates,
         departure_time: datetime,
-        mode: Mode = Mode.DRIVING,
+        mode: Mode,
     ) -> RequestResult:
-        route = f"{origin.lng},{origin.lat};{destination.lng},{destination.lat}"  # for Mapbox lat/lng are flipped!
-        transport_mode = get_mapbox_specific_mode(mode)
+        route = f"{origin.lat},{origin.lng}:{destination.lat},{destination.lng}"
         params = {
-            "depart_at": departure_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "access_token": self.api_key,
-            "exclude": "ferry",  # by default I think it includes ferries, but for our API we use just driving, without ferries
+            "key": self.api_key,
+            "departAt": departure_time.isoformat(),
+            "travelMode": get_tomtom_specific_mode(mode),
         }
         try:
             async with aiohttp.ClientSession(
                 timeout=self.default_timeout
             ) as session, session.get(
-                f"{self.MAPBOX_ROUTES_URL}/{transport_mode}/{route}", params=params
+                f"{self.TOMTOM_ROUTING_URL}{route}/json", params=params
             ) as response:
                 data = await response.json()
                 if response.status == 200:
-                    duration = data["routes"][0]["duration"]
-                    if not duration:
-                        raise MapboxApiError(
+                    travel_time = data["routes"][0]["summary"]["travelTimeInSeconds"]
+
+                    if not travel_time:
+                        raise TomTomApiError(
                             "No route found between origin and destination."
                         )
-                    return RequestResult(travel_time=int(duration))
+
+                    return RequestResult(travel_time=travel_time)
                 else:
                     error_message = data.get("detailedError", "")
                     logger.error(
-                        f"Error in Mapbox API response: {response.status} - {error_message}"
+                        f"Error in TomTom API response: {response.status} - {error_message}"
                     )
                     return RequestResult(None)
         except Exception as e:
-            logger.error(f"Exception during requesting Mapbox API, {e}")
+            logger.error(f"Exception during requesting TomTom API, {e}")
             return RequestResult(None)
 
 
-def get_mapbox_specific_mode(mode: Mode) -> str:
+def get_tomtom_specific_mode(mode: Mode) -> str:
     if mode == Mode.DRIVING:
-        return "driving-traffic"
+        return "car"
     elif mode == Mode.PUBLIC_TRANSPORT:
-        raise ValueError("Public transport is not supported for Mapbox requests")
+        return "bus"  # TomTom doesn't have a general mode for transit / PT
+        # TODO: figure out how to compare PT modes accorss different providers
     else:
         raise ValueError(f"Unsupported mode: `{mode.value}`")
