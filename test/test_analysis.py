@@ -2,11 +2,19 @@ import pandas as pd
 from traveltime_drive_time_comparisons.analysis import (
     QuantileErrorResult,
     absolute_error,
+    calculate_accuracies,
     calculate_differences,
     calculate_quantiles,
     relative_error,
 )
-from traveltime_drive_time_comparisons.collect import GOOGLE_API, TRAVELTIME_API, Fields
+from traveltime_drive_time_comparisons.collect import (
+    GOOGLE_API,
+    HERE_API,
+    OSRM_API,
+    TOMTOM_API,
+    TRAVELTIME_API,
+    Fields,
+)
 from traveltime_drive_time_comparisons.config import Provider, Providers
 from traveltime_drive_time_comparisons.requests.traveltime_credentials import (
     Credentials,
@@ -96,3 +104,20 @@ def test_calculate_quantiles_for_unsorted_list():
     assert calculate_quantiles(
         random_order_df, 0.75, GOOGLE_API
     ) == QuantileErrorResult(40, 20)
+
+
+def test_calculate_accuracies():
+    data = pd.DataFrame(
+        {
+            Fields.TRAVEL_TIME[GOOGLE_API]: [100, 200, 300],
+            Fields.TRAVEL_TIME[TOMTOM_API]: [110, 190, 310],
+            Fields.TRAVEL_TIME[HERE_API]: [90, 210, 290],
+            Fields.TRAVEL_TIME[OSRM_API]: [105, 195, 305],
+        }
+    )
+
+    result = calculate_accuracies(data, Fields.TRAVEL_TIME)
+    print(result.all)
+
+    assert len(result) == 4
+    assert list(result["Accuracy %"].round()) == [99, 97, 93, 90]

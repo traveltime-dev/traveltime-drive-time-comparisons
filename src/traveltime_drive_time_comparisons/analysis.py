@@ -1,5 +1,7 @@
 import logging
 from dataclasses import dataclass
+from typing import Dict
+import pandas as pd
 
 from pandas import DataFrame
 
@@ -28,6 +30,7 @@ class QuantileErrorResult:
 def log_results(
     results_with_differences: DataFrame, quantile: float, api_providers: Providers
 ):
+    logging.info("Comparing TravelTime to other providers:")
     for provider in api_providers.competitors:
         name = provider.name
         capitalized_provider = get_capitalized_provider_name(name)
@@ -106,4 +109,39 @@ def calculate_quantiles(
     ].quantile(quantile, "higher")
     return QuantileErrorResult(
         int(quantile_absolute_error), int(quantile_relative_error)
+    )
+
+
+def calculate_accuracies(data: pd.DataFrame, columns: Dict[str, str]) -> pd.DataFrame:
+    existing_fields = {k: v for k, v in columns.items() if v in data.columns}
+    providers_data = data[list(existing_fields.values())]
+    results = []
+
+    for row in providers_data.itertuples():
+        values = list(row)[1:]
+        comparisons = [
+            (
+                get_capitalized_provider_name(provider),
+                value,
+                100
+                * (
+                    1
+                    - abs(
+                        value
+                        - sum(v for j, v in enumerate(values) if j != i)
+                        / (len(values) - 1)
+                    )
+                    / value
+                ),
+            )
+            for i, (provider, value) in enumerate(zip(existing_fields.keys(), values))
+        ]
+        results.extend(comparisons)
+
+    df = pd.DataFrame.from_records(results, columns=["Provider", "Value", "Accuracy %"])
+    return (
+        df.groupby("Provider")["Accuracy %"]
+        .mean()
+        .reset_index()
+        .sort_values("Accuracy %", ascending=False, ignore_index=True)
     )

@@ -15,7 +15,7 @@ Source code is available on [GitHub](https://github.com/traveltime-dev/traveltim
 - Get travel times from TravelTime API, Google Maps API, TomTom API, HERE API, Mapbox API, OSRM API and Valhalla API in parallel, for provided origin/destination pairs and a set 
     of departure times.
 - Departure times are calculated based on user provided start time, end time and interval.  
-- Analyze the differences between the results and print out the average error percentage.
+- Analyze the differences between the results and print out an accuracy comparison, also the average error percentage when compared to TravelTime.
 
 ## Prerequisites
 

@@ -5,7 +5,10 @@ import pandas as pd
 
 from traveltime_drive_time_comparisons import collect
 from traveltime_drive_time_comparisons import config
-from traveltime_drive_time_comparisons.analysis import run_analysis
+from traveltime_drive_time_comparisons.analysis import (
+    calculate_accuracies,
+    run_analysis,
+)
 from traveltime_drive_time_comparisons.config import parse_config
 from traveltime_drive_time_comparisons.collect import Fields
 from traveltime_drive_time_comparisons.requests import factory
@@ -70,6 +73,14 @@ async def run():
             logger.info(
                 f"Skipped {skipped_rows} rows ({100 * skipped_rows / all_rows:.2f}%)"
             )
+
+        logger.info(
+            "Provider Cross-Validation Results: \n"
+            + calculate_accuracies(
+                filtered_travel_times_df, Fields.TRAVEL_TIME
+            ).to_string()
+        )
+
         run_analysis(filtered_travel_times_df, args.output, 0.90, providers)
 
 
