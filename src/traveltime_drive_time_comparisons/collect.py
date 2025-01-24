@@ -9,7 +9,10 @@ from pandas import DataFrame
 from pytz.tzinfo import BaseTzInfo
 from traveltimepy import Coordinates
 
-from traveltime_drive_time_comparisons.common import Fields, get_capitalized_provider_name
+from traveltime_drive_time_comparisons.common import (
+    Fields,
+    get_capitalized_provider_name,
+)
 from traveltime_drive_time_comparisons.config import Mode
 from traveltime_drive_time_comparisons.requests.base_handler import BaseRequestHandler
 
