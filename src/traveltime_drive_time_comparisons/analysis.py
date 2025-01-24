@@ -1,11 +1,13 @@
 import logging
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, List, Tuple
 import pandas as pd
 
 from pandas import DataFrame
 
-from traveltime_drive_time_comparisons.collect import (
+from traveltime_drive_time_comparisons.common import (
+    ACCURACY_COLUMN,
+    PROVIDER_COLUMN,
     Fields,
     TRAVELTIME_API,
     get_capitalized_provider_name,
@@ -112,6 +114,26 @@ def calculate_quantiles(
     )
 
 
+def _calculate_provider_accuracy(
+    value: float, competitor_values: List[float], i: int
+) -> float:
+    others_avg = sum(
+        competitor_value
+        for j, competitor_value in enumerate(competitor_values)
+        if j != i
+    ) / (len(competitor_values) - 1)
+    return 100 * (1 - abs(value - others_avg) / value)
+
+
+def _get_provider_comparison(
+    provider: str, value: float, values: List[float], index: int
+) -> Tuple[str, float]:
+    return (
+        get_capitalized_provider_name(provider),
+        _calculate_provider_accuracy(value, values, index),
+    )
+
+
 def calculate_accuracies(data: pd.DataFrame, columns: Dict[str, str]) -> pd.DataFrame:
     existing_fields = {k: v for k, v in columns.items() if v in data.columns}
     providers_data = data[list(existing_fields.values())]
@@ -120,28 +142,15 @@ def calculate_accuracies(data: pd.DataFrame, columns: Dict[str, str]) -> pd.Data
     for row in providers_data.itertuples():
         values = list(row)[1:]
         comparisons = [
-            (
-                get_capitalized_provider_name(provider),
-                value,
-                100
-                * (
-                    1
-                    - abs(
-                        value
-                        - sum(v for j, v in enumerate(values) if j != i)
-                        / (len(values) - 1)
-                    )
-                    / value
-                ),
-            )
+            _get_provider_comparison(provider, value, values, i)
             for i, (provider, value) in enumerate(zip(existing_fields.keys(), values))
         ]
         results.extend(comparisons)
 
-    df = pd.DataFrame.from_records(results, columns=["Provider", "Value", "Accuracy %"])
+    df = pd.DataFrame.from_records(results, columns=[PROVIDER_COLUMN, ACCURACY_COLUMN])
     return (
-        df.groupby("Provider")["Accuracy %"]
+        df.groupby(PROVIDER_COLUMN)[ACCURACY_COLUMN]
         .mean()
         .reset_index()
-        .sort_values("Accuracy %", ascending=False, ignore_index=True)
+        .sort_values(ACCURACY_COLUMN, ascending=False, ignore_index=True)
     )

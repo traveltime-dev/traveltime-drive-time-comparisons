@@ -75,7 +75,7 @@ async def run():
             )
 
         logger.info(
-            "Provider Cross-Validation Results: \n"
+            "Provider cross-validation results: \n"
             + calculate_accuracies(
                 filtered_travel_times_df, Fields.TRAVEL_TIME
             ).to_string()

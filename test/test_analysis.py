@@ -7,7 +7,7 @@ from traveltime_drive_time_comparisons.analysis import (
     calculate_quantiles,
     relative_error,
 )
-from traveltime_drive_time_comparisons.collect import (
+from traveltime_drive_time_comparisons.common import (
     GOOGLE_API,
     HERE_API,
     OSRM_API,
@@ -117,7 +117,6 @@ def test_calculate_accuracies():
     )
 
     result = calculate_accuracies(data, Fields.TRAVEL_TIME)
-    print(result.all)
 
     assert len(result) == 4
     assert list(result["Accuracy %"].round()) == [99, 97, 93, 90]

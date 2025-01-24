@@ -105,7 +105,30 @@ and interval to 240, the script will sample both APIs for departure times 08:00,
 included). But for interval equal to 300, the script will sample APIs for departure times 08:00, 13:00 and 18:00 (end-time 
 is not included).
 
-## Output
+## Console output
+
+The console output contains results from the cross-validation. These results are calculated by
+comparing one provider's results with the average of all competitors. This process is repeated for
+all providers
+```
+2025-01-24 15:30:00 | INFO | Provider cross-validation results: 
+     Provider  Accuracy %
+0  TravelTime   90.717912
+1      Google   82.346109
+2      TomTom   75.481112
+
+```
+
+It also contains more detailed comparisons with the TravelTime API
+```
+2025-01-24 15:30:00 | INFO | Comparing TravelTime to other providers:
+2025-01-24 15:30:00 | INFO | Mean relative error compared to Google API: 6.78%
+2025-01-24 15:30:00 | INFO | 90% of TravelTime results differ from Google API by less than 6%
+2025-01-24 15:30:00 | INFO | Mean relative error compared to TomTom API: 12.33%
+2025-01-24 15:30:00 | INFO | 90% of TravelTime results differ from TomTom API by less than 12%
+```
+
+## File output
 The output file will contain the `origin` and `destination` columns from input file, with some additional columns: 
   - `departure_time`: departure time in `YYYY-MM-DD HH:MM:SS±HHMM` format, calculated from the start-time, end-time and interval.
     It includes date, time and timezone offset.
