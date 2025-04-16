@@ -1,6 +1,6 @@
 from typing import Dict
 
-from traveltime_drive_time_comparisons.collect import (
+from traveltime_drive_time_comparisons.common import (
     TOMTOM_API,
     HERE_API,
     MAPBOX_API,

@@ -1,9 +1,13 @@
 import logging
 from dataclasses import dataclass
+from typing import Dict, List, Tuple
+import pandas as pd
 
 from pandas import DataFrame
 
-from traveltime_drive_time_comparisons.collect import (
+from traveltime_drive_time_comparisons.common import (
+    ACCURACY_COLUMN,
+    PROVIDER_COLUMN,
     Fields,
     TRAVELTIME_API,
     get_capitalized_provider_name,
@@ -28,6 +32,7 @@ class QuantileErrorResult:
 def log_results(
     results_with_differences: DataFrame, quantile: float, api_providers: Providers
 ):
+    logging.info("Comparing TravelTime to other providers:")
     for provider in api_providers.competitors:
         name = provider.name
         capitalized_provider = get_capitalized_provider_name(name)
@@ -106,4 +111,56 @@ def calculate_quantiles(
     ].quantile(quantile, "higher")
     return QuantileErrorResult(
         int(quantile_absolute_error), int(quantile_relative_error)
+    )
+
+
+def _calculate_provider_accuracy(
+    provider_value: float, all_values: List[float], provider_index: int
+) -> float:
+    competitors_sum = sum(
+        competitor_value
+        for competitor_index, competitor_value in enumerate(all_values)
+        if competitor_index != provider_index
+    )
+    competitors_average = competitors_sum / (len(all_values) - 1)
+    accuracy = 1 - abs(provider_value - competitors_average) / provider_value
+    return accuracy * 100
+
+
+def _get_provider_comparison(
+    provider_name: str,
+    provider_value: float,
+    all_values: List[float],
+    provider_index: int,
+) -> Tuple[str, float]:
+    return (
+        get_capitalized_provider_name(provider_name),
+        _calculate_provider_accuracy(provider_value, all_values, provider_index),
+    )
+
+
+def calculate_accuracies(data: pd.DataFrame, columns: Dict[str, str]) -> pd.DataFrame:
+    # only calculate providers that are present in the current search
+    existing_fields = {k: v for k, v in columns.items() if v in data.columns}
+    providers_data = data[list(existing_fields.values())]
+
+    results = []
+    for row in providers_data.itertuples():
+        all_values = list(row)[1:]
+        comparisons = [
+            _get_provider_comparison(
+                provider_name, provider_value, all_values, provider_index
+            )
+            for provider_index, (provider_name, provider_value) in enumerate(
+                zip(existing_fields.keys(), all_values)
+            )
+        ]
+        results.extend(comparisons)
+
+    df = pd.DataFrame.from_records(results, columns=[PROVIDER_COLUMN, ACCURACY_COLUMN])
+    return (
+        df.groupby(PROVIDER_COLUMN)[ACCURACY_COLUMN]
+        .mean()
+        .reset_index()
+        .sort_values(ACCURACY_COLUMN, ascending=False, ignore_index=True)
     )
