@@ -5,7 +5,7 @@ import aiohttp
 from traveltimepy import Coordinates
 
 from traveltime_drive_time_comparisons.config import Mode
-from traveltime_drive_time_comparisons.requests.base_handler import (
+from traveltime_drive_time_comparisons.api_requests.base_handler import (
     BaseRequestHandler,
     RequestResult,
     create_async_limiter,
@@ -14,12 +14,12 @@ from traveltime_drive_time_comparisons.requests.base_handler import (
 logger = logging.getLogger(__name__)
 
 
-class OSRMApiError(Exception):
+class OpenRoutesError(Exception):
     pass
 
 
-class OSRMRequestHandler(BaseRequestHandler):
-    OSRM_ROUTES_URL = "http://router.project-osrm.org/route/v1/"
+class OpenRoutesRequestHandler(BaseRequestHandler):
+    OPEN_ROUTES_URL = "https://api.openrouteservice.org/v2/directions"
 
     default_timeout = aiohttp.ClientTimeout(total=60)
 
@@ -32,48 +32,45 @@ class OSRMRequestHandler(BaseRequestHandler):
         origin: Coordinates,
         destination: Coordinates,
         departure_time: datetime,
-        mode: Mode,
+        mode: Mode = Mode.DRIVING,
     ) -> RequestResult:
-        route = f"{origin.lng},{origin.lat};{destination.lng},{destination.lat}"  # for OSRM lat/lng are flipped!
-        transport_mode = get_osrm_specific_mode(mode)
-
+        transport_mode = get_open_routes_specific_mode(mode)
         params = {
-            "overview": "false",
+            "api_key": self.api_key,
+            "start": f"{origin.lng},{origin.lat}",
+            "end": f"{destination.lng},{destination.lat}",
         }
-
         try:
             async with aiohttp.ClientSession(
                 timeout=self.default_timeout
             ) as session, session.get(
-                f"{self.OSRM_ROUTES_URL}{transport_mode}/{route}", params=params
+                f"{self.OPEN_ROUTES_URL}/{transport_mode}", params=params
             ) as response:
                 data = await response.json()
                 if response.status == 200:
-                    first_route = data["routes"][0]
-
-                    if not first_route:
-                        raise OSRMApiError(
+                    duration = data["features"][0]["properties"]["segments"][0][
+                        "duration"
+                    ]
+                    if not duration:
+                        raise OpenRoutesError(
                             "No route found between origin and destination."
                         )
-
-                    total_duration = sum(leg["duration"] for leg in first_route["legs"])
-
-                    return RequestResult(travel_time=int(total_duration))
+                    return RequestResult(travel_time=int(duration))
                 else:
                     error_message = data.get("detailedError", "")
                     logger.error(
-                        f"Error in OSRM API response: {response.status} - {error_message}"
+                        f"Error in OpenRoutes API response: {response.status} - {error_message}"
                     )
                     return RequestResult(None)
         except Exception as e:
-            logger.error(f"Exception during requesting OSRM API, {e}")
+            logger.error(f"Exception during requesting OpenRoutes API, {e}")
             return RequestResult(None)
 
 
-def get_osrm_specific_mode(mode: Mode) -> str:
+def get_open_routes_specific_mode(mode: Mode) -> str:
     if mode == Mode.DRIVING:
-        return "driving"
+        return "driving-car"
     elif mode == Mode.PUBLIC_TRANSPORT:
-        raise ValueError("Public transport is not supported for OSRM requests")
+        raise ValueError("Public transport is not supported for OpenRoutes requests")
     else:
         raise ValueError(f"Unsupported mode: `{mode.value}`")

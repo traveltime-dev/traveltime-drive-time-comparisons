@@ -4,9 +4,9 @@ from enum import Enum
 from typing import List
 
 import pandas
-from traveltimepy.http import json
+import json
 
-from traveltime_drive_time_comparisons.requests.traveltime_credentials import (
+from traveltime_drive_time_comparisons.api_requests.traveltime_credentials import (
     Credentials,
 )
 

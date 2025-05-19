@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "traveltime-drive-time-comparisons"
-description = "Compare travel times obtained from TravelTime API and Google Maps API"
+description = "Compare travel times obtained from TravelTime API other API providers"
 authors = [
     { name = "TravelTime" },
 ]
@@ -25,7 +25,9 @@ dependencies = [
     "aiolimiter",
     "pandas",
     "pytz",
-    "traveltimepy"
+    "traveltimepy",
+    "google-maps-routing",
+    "requests",
 ]
 
 [project.urls]

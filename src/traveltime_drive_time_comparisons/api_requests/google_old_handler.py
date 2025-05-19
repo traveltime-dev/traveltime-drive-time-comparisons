@@ -1,3 +1,5 @@
+# For Google Directions API (legacy). Only kept for now
+
 import logging
 from datetime import datetime
 
@@ -5,7 +7,7 @@ import aiohttp
 from traveltimepy import Coordinates
 
 from traveltime_drive_time_comparisons.config import Mode
-from traveltime_drive_time_comparisons.requests.base_handler import (
+from traveltime_drive_time_comparisons.api_requests.base_handler import (
     BaseRequestHandler,
     RequestResult,
     create_async_limiter,
@@ -40,7 +42,7 @@ class GoogleRequestHandler(BaseRequestHandler):
             "origin": "{},{}".format(origin.lat, origin.lng),
             "destination": "{},{}".format(destination.lat, destination.lng),
             "mode": get_google_specific_mode(mode),
-            "traffic_model": "best_guess",
+            "traffic_model": "pessimistic",
             "departure_time": int(departure_time.timestamp()),
             "key": self.api_key,
         }

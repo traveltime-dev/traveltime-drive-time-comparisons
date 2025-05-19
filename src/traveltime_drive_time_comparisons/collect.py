@@ -14,7 +14,9 @@ from traveltime_drive_time_comparisons.common import (
     get_capitalized_provider_name,
 )
 from traveltime_drive_time_comparisons.config import Mode
-from traveltime_drive_time_comparisons.requests.base_handler import BaseRequestHandler
+from traveltime_drive_time_comparisons.api_requests.base_handler import (
+    BaseRequestHandler,
+)
 
 
 logger = logging.getLogger(__name__)

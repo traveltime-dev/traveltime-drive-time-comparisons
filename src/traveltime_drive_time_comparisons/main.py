@@ -11,7 +11,7 @@ from traveltime_drive_time_comparisons.analysis import (
 )
 from traveltime_drive_time_comparisons.config import parse_config
 from traveltime_drive_time_comparisons.collect import Fields
-from traveltime_drive_time_comparisons.requests import factory
+from traveltime_drive_time_comparisons.api_requests import factory
 
 logging.basicConfig(
     level=logging.INFO,
