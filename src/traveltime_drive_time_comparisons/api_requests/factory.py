@@ -11,25 +11,31 @@ from traveltime_drive_time_comparisons.common import (
     VALHALLA_API,
 )
 from traveltime_drive_time_comparisons.config import Provider, Providers
-from traveltime_drive_time_comparisons.requests.base_handler import BaseRequestHandler
-from traveltime_drive_time_comparisons.requests.google_handler import (
+from traveltime_drive_time_comparisons.api_requests.base_handler import (
+    BaseRequestHandler,
+)
+from traveltime_drive_time_comparisons.api_requests.google_handler import (
     GoogleRequestHandler,
 )
-from traveltime_drive_time_comparisons.requests.tomtom_handler import (
+from traveltime_drive_time_comparisons.api_requests.tomtom_handler import (
     TomTomRequestHandler,
 )
-from traveltime_drive_time_comparisons.requests.here_handler import HereRequestHandler
-from traveltime_drive_time_comparisons.requests.osrm_handler import OSRMRequestHandler
-from traveltime_drive_time_comparisons.requests.mapbox_handler import (
+from traveltime_drive_time_comparisons.api_requests.here_handler import (
+    HereRequestHandler,
+)
+from traveltime_drive_time_comparisons.api_requests.osrm_handler import (
+    OSRMRequestHandler,
+)
+from traveltime_drive_time_comparisons.api_requests.mapbox_handler import (
     MapboxRequestHandler,
 )
-from traveltime_drive_time_comparisons.requests.openroutes_handler import (
+from traveltime_drive_time_comparisons.api_requests.openroutes_handler import (
     OpenRoutesRequestHandler,
 )
-from traveltime_drive_time_comparisons.requests.valhalla_handler import (
+from traveltime_drive_time_comparisons.api_requests.valhalla_handler import (
     ValhallaRequestHandler,
 )
-from traveltime_drive_time_comparisons.requests.traveltime_handler import (
+from traveltime_drive_time_comparisons.api_requests.traveltime_handler import (
     TravelTimeRequestHandler,
 )
 

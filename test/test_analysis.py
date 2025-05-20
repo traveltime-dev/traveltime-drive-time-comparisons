@@ -16,7 +16,7 @@ from traveltime_drive_time_comparisons.common import (
     Fields,
 )
 from traveltime_drive_time_comparisons.config import Provider, Providers
-from traveltime_drive_time_comparisons.requests.traveltime_credentials import (
+from traveltime_drive_time_comparisons.api_requests.traveltime_credentials import (
     Credentials,
 )
 

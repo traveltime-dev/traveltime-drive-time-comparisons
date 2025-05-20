@@ -5,7 +5,7 @@ import aiohttp
 from traveltimepy import Coordinates
 
 from traveltime_drive_time_comparisons.config import Mode
-from traveltime_drive_time_comparisons.requests.base_handler import (
+from traveltime_drive_time_comparisons.api_requests.base_handler import (
     BaseRequestHandler,
     RequestResult,
     create_async_limiter,
@@ -14,12 +14,12 @@ from traveltime_drive_time_comparisons.requests.base_handler import (
 logger = logging.getLogger(__name__)
 
 
-class TomTomApiError(Exception):
+class OSRMApiError(Exception):
     pass
 
 
-class TomTomRequestHandler(BaseRequestHandler):
-    TOMTOM_ROUTING_URL = "https://api.tomtom.com/routing/1/calculateRoute/"
+class OSRMRequestHandler(BaseRequestHandler):
+    OSRM_ROUTES_URL = "http://router.project-osrm.org/route/v1/"
 
     default_timeout = aiohttp.ClientTimeout(total=60)
 
@@ -34,44 +34,46 @@ class TomTomRequestHandler(BaseRequestHandler):
         departure_time: datetime,
         mode: Mode,
     ) -> RequestResult:
-        route = f"{origin.lat},{origin.lng}:{destination.lat},{destination.lng}"
+        route = f"{origin.lng},{origin.lat};{destination.lng},{destination.lat}"  # for OSRM lat/lng are flipped!
+        transport_mode = get_osrm_specific_mode(mode)
+
         params = {
-            "key": self.api_key,
-            "departAt": departure_time.isoformat(),
-            "travelMode": get_tomtom_specific_mode(mode),
+            "overview": "false",
         }
+
         try:
             async with aiohttp.ClientSession(
                 timeout=self.default_timeout
             ) as session, session.get(
-                f"{self.TOMTOM_ROUTING_URL}{route}/json", params=params
+                f"{self.OSRM_ROUTES_URL}{transport_mode}/{route}", params=params
             ) as response:
                 data = await response.json()
                 if response.status == 200:
-                    travel_time = data["routes"][0]["summary"]["travelTimeInSeconds"]
+                    first_route = data["routes"][0]
 
-                    if not travel_time:
-                        raise TomTomApiError(
+                    if not first_route:
+                        raise OSRMApiError(
                             "No route found between origin and destination."
                         )
 
-                    return RequestResult(travel_time=travel_time)
+                    total_duration = sum(leg["duration"] for leg in first_route["legs"])
+
+                    return RequestResult(travel_time=int(total_duration))
                 else:
                     error_message = data.get("detailedError", "")
                     logger.error(
-                        f"Error in TomTom API response: {response.status} - {error_message}"
+                        f"Error in OSRM API response: {response.status} - {error_message}"
                     )
                     return RequestResult(None)
         except Exception as e:
-            logger.error(f"Exception during requesting TomTom API, {e}")
+            logger.error(f"Exception during requesting OSRM API, {e}")
             return RequestResult(None)
 
 
-def get_tomtom_specific_mode(mode: Mode) -> str:
+def get_osrm_specific_mode(mode: Mode) -> str:
     if mode == Mode.DRIVING:
-        return "car"
+        return "driving"
     elif mode == Mode.PUBLIC_TRANSPORT:
-        return "bus"  # TomTom doesn't have a general mode for transit / PT
-        # TODO: figure out how to compare PT modes accorss different providers
+        raise ValueError("Public transport is not supported for OSRM requests")
     else:
         raise ValueError(f"Unsupported mode: `{mode.value}`")

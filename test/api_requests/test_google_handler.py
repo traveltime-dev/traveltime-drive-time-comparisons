@@ -3,19 +3,19 @@ from enum import Enum
 import pytest
 
 from traveltime_drive_time_comparisons.config import Mode
-from traveltime_drive_time_comparisons.requests.google_handler import (
-    get_google_specific_mode,
+from traveltime_drive_time_comparisons.api_requests.google_handler import (
+    get_google_travel_mode,
 )
 
 
 def test_get_google_specific_mode_for_driving():
-    result = get_google_specific_mode(Mode.DRIVING)
-    assert result == "driving"
+    result = get_google_travel_mode(Mode.DRIVING)
+    assert result == 1
 
 
 def test_get_google_specific_mode_for_public_transport():
-    result = get_google_specific_mode(Mode.PUBLIC_TRANSPORT)
-    assert result == "transit"
+    result = get_google_travel_mode(Mode.PUBLIC_TRANSPORT)
+    assert result == 7
 
 
 def test_get_google_specific_mode_for_unsupported_mode():
@@ -23,4 +23,4 @@ def test_get_google_specific_mode_for_unsupported_mode():
         WALKING = "WALKING"
 
     with pytest.raises(ValueError, match=r"Unsupported mode: `WALKING`"):
-        get_google_specific_mode(MockMode.WALKING)
+        get_google_travel_mode(MockMode.WALKING)

@@ -5,7 +5,7 @@ import aiohttp
 from traveltimepy import Coordinates
 
 from traveltime_drive_time_comparisons.config import Mode
-from traveltime_drive_time_comparisons.requests.base_handler import (
+from traveltime_drive_time_comparisons.api_requests.base_handler import (
     BaseRequestHandler,
     RequestResult,
     create_async_limiter,
@@ -14,12 +14,12 @@ from traveltime_drive_time_comparisons.requests.base_handler import (
 logger = logging.getLogger(__name__)
 
 
-class OpenRoutesError(Exception):
+class TomTomApiError(Exception):
     pass
 
 
-class OpenRoutesRequestHandler(BaseRequestHandler):
-    OPEN_ROUTES_URL = "https://api.openrouteservice.org/v2/directions"
+class TomTomRequestHandler(BaseRequestHandler):
+    TOMTOM_ROUTING_URL = "https://api.tomtom.com/routing/1/calculateRoute/"
 
     default_timeout = aiohttp.ClientTimeout(total=60)
 
@@ -32,45 +32,46 @@ class OpenRoutesRequestHandler(BaseRequestHandler):
         origin: Coordinates,
         destination: Coordinates,
         departure_time: datetime,
-        mode: Mode = Mode.DRIVING,
+        mode: Mode,
     ) -> RequestResult:
-        transport_mode = get_open_routes_specific_mode(mode)
+        route = f"{origin.lat},{origin.lng}:{destination.lat},{destination.lng}"
         params = {
-            "api_key": self.api_key,
-            "start": f"{origin.lng},{origin.lat}",
-            "end": f"{destination.lng},{destination.lat}",
+            "key": self.api_key,
+            "departAt": departure_time.isoformat(),
+            "travelMode": get_tomtom_specific_mode(mode),
         }
         try:
             async with aiohttp.ClientSession(
                 timeout=self.default_timeout
             ) as session, session.get(
-                f"{self.OPEN_ROUTES_URL}/{transport_mode}", params=params
+                f"{self.TOMTOM_ROUTING_URL}{route}/json", params=params
             ) as response:
                 data = await response.json()
                 if response.status == 200:
-                    duration = data["features"][0]["properties"]["segments"][0][
-                        "duration"
-                    ]
-                    if not duration:
-                        raise OpenRoutesError(
+                    travel_time = data["routes"][0]["summary"]["travelTimeInSeconds"]
+
+                    if not travel_time:
+                        raise TomTomApiError(
                             "No route found between origin and destination."
                         )
-                    return RequestResult(travel_time=int(duration))
+
+                    return RequestResult(travel_time=travel_time)
                 else:
                     error_message = data.get("detailedError", "")
                     logger.error(
-                        f"Error in OpenRoutes API response: {response.status} - {error_message}"
+                        f"Error in TomTom API response: {response.status} - {error_message}"
                     )
                     return RequestResult(None)
         except Exception as e:
-            logger.error(f"Exception during requesting OpenRoutes API, {e}")
+            logger.error(f"Exception during requesting TomTom API, {e}")
             return RequestResult(None)
 
 
-def get_open_routes_specific_mode(mode: Mode) -> str:
+def get_tomtom_specific_mode(mode: Mode) -> str:
     if mode == Mode.DRIVING:
-        return "driving-car"
+        return "car"
     elif mode == Mode.PUBLIC_TRANSPORT:
-        raise ValueError("Public transport is not supported for OpenRoutes requests")
+        return "bus"  # TomTom doesn't have a general mode for transit / PT
+        # TODO: figure out how to compare PT modes accorss different providers
     else:
         raise ValueError(f"Unsupported mode: `{mode.value}`")
