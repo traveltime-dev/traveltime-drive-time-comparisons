@@ -27,7 +27,6 @@ dependencies = [
     "pytz",
     "traveltimepy",
     "google-maps-routing",
-    "requests",
 ]
 
 [project.urls]
