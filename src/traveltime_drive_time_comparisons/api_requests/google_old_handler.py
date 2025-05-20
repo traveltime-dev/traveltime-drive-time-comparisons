@@ -42,7 +42,7 @@ class GoogleRequestHandler(BaseRequestHandler):
             "origin": "{},{}".format(origin.lat, origin.lng),
             "destination": "{},{}".format(destination.lat, destination.lng),
             "mode": get_google_specific_mode(mode),
-            "traffic_model": "pessimistic",
+            "traffic_model": "best_guess",
             "departure_time": int(departure_time.timestamp()),
             "key": self.api_key,
         }
