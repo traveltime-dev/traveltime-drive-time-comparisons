@@ -29,35 +29,42 @@ class QuantileErrorResult:
 
 
 def log_results(
-    results_with_differences: DataFrame, quantile: float, target_provider: Provider, api_providers: Providers
+    results_with_differences: DataFrame,
+    quantile: float,
+    target_provider: Provider,
+    api_providers: Providers,
 ):
     target_name = target_provider.name
     capitalized_target = get_capitalized_provider_name(target_name)
     logging.info(f"Comparing {capitalized_target} to other providers:")
     for name in api_providers.all_names():
-        if name != target_name: 
+        if name != target_name:
             capitalized_provider = get_capitalized_provider_name(name)
             logging.info(
                 f"\tMean relative error compared to {capitalized_provider} "
                 f"API: {results_with_differences[relative_error(target_name, name)].mean():.2f}%"
             )
-            quantile_errors = calculate_quantiles(results_with_differences, quantile, target_name, name)
+            quantile_errors = calculate_quantiles(
+                results_with_differences, quantile, target_name, name
+            )
             logging.info(
                 f"\t{int(quantile * 100)}% of TravelTime results differ from {capitalized_provider} API "
                 f"by less than {int(quantile_errors.relative_error)}%"
             )
 
 
-def format_results_for_csv(
-    results_with_differences: DataFrame
-) -> DataFrame:
+def format_results_for_csv(results_with_differences: DataFrame) -> DataFrame:
     formatted_results = results_with_differences.copy()
 
     # Drop all columns containing "absolute_error"
-    absolute_error_columns = [col for col in formatted_results.columns if "absolute_error" in col]
+    absolute_error_columns = [
+        col for col in formatted_results.columns if "absolute_error" in col
+    ]
     formatted_results = formatted_results.drop(columns=absolute_error_columns)
     # Convert all relative error columns to int
-    relative_error_columns = [col for col in formatted_results.columns if "error_percentage" in col]
+    relative_error_columns = [
+        col for col in formatted_results.columns if "error_percentage" in col
+    ]
     for col in relative_error_columns:
         formatted_results[col] = formatted_results[col].astype(int)
 
@@ -69,7 +76,9 @@ def run_analysis(
 ):
     accumulated_results = results.copy()
     for target_provider in api_providers.all_providers():
-        results_with_differences = calculate_differences(results, target_provider, api_providers)
+        results_with_differences = calculate_differences(
+            results, target_provider, api_providers
+        )
 
         for col in results_with_differences.columns:
             if col not in accumulated_results.columns:
@@ -79,17 +88,21 @@ def run_analysis(
 
     logging.info(f"Detailed results can be found in {output_file} file")
 
-    formatted_results = format_results_for_csv(accumulated_results)  # Use accumulated_results here
+    formatted_results = format_results_for_csv(
+        accumulated_results
+    )  # Use accumulated_results here
 
     formatted_results.to_csv(output_file, index=False)
 
 
-def calculate_differences(results: DataFrame, target_provider: Provider, api_providers: Providers) -> DataFrame:
+def calculate_differences(
+    results: DataFrame, target_provider: Provider, api_providers: Providers
+) -> DataFrame:
     results_with_differences = results.copy()
 
     target_name = target_provider.name
     for name in api_providers.all_names():
-        if(name != target_name):
+        if name != target_name:
             absolute_error_col = absolute_error(target_name, name)
             relative_error_col = relative_error(target_name, name)
 
