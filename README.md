@@ -146,7 +146,7 @@ The output file will contain the `origin` and `destination` columns from input f
   - `tt_travel_time`: travel time gathered from TravelTime API in seconds
   - `error_percentage_*`: relative error between provider and TravelTime travel times in percent, relative to provider result.
 
-### Sample output with 3 providers
+### Sample output with 3 providers - TravelTime, Google and TomTom
 ```csv
 origin,destination,departure_time,tt_travel_time,google_travel_time,tomtom_travel_time,error_percentage_traveltime_to_google,error_percentage_traveltime_to_tomtom,error_percentage_google_to_traveltime,error_percentage_google_to_tomtom,error_percentage_tomtom_to_traveltime,error_percentage_tomtom_to_google
 "33.05187660000014 , -117.1350031999999","33.14408130000009 , -117.02942509999977",2025-06-20 13:00:00-0700,1970.0,2224.0,1869.0,11,5,12,18,5,15
