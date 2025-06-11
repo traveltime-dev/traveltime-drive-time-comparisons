@@ -46,6 +46,9 @@ class Providers:
     def all_names(self) -> List[str]:
         return [self.base.name] + [competitor.name for competitor in self.competitors]
 
+    def all_providers(self) -> List[Provider]:
+        return [self.base] + [competitor for competitor in self.competitors]
+
 
 class Mode(Enum):
     DRIVING = "driving"
