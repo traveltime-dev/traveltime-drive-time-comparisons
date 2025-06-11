@@ -128,14 +128,14 @@ It also contains more detailed comparisons with each API
 2025-06-11 13:23:36 | INFO | 	90% of TravelTime results differ from TomTom API by less than 48%
 2025-06-11 13:23:36 | INFO | Comparing Google to other providers:
 2025-06-11 13:23:36 | INFO | 	Mean relative error compared to TravelTime API: 17.11%
-2025-06-11 13:23:36 | INFO | 	90% of TravelTime results differ from TravelTime API by less than 48%
+2025-06-11 13:23:36 | INFO | 	90% of Google results differ from TravelTime API by less than 48%
 2025-06-11 13:23:36 | INFO | 	Mean relative error compared to TomTom API: 33.21%
-2025-06-11 13:23:36 | INFO | 	90% of TravelTime results differ from TomTom API by less than 40%
+2025-06-11 13:23:36 | INFO | 	90% of Google results differ from TomTom API by less than 40%
 2025-06-11 13:23:36 | INFO | Comparing TomTom to other providers:
 2025-06-11 13:23:36 | INFO | 	Mean relative error compared to TravelTime API: 19.58%
-2025-06-11 13:23:36 | INFO | 	90% of TravelTime results differ from TravelTime API by less than 32%
+2025-06-11 13:23:36 | INFO | 	90% of TomTom results differ from TravelTime API by less than 32%
 2025-06-11 13:23:36 | INFO | 	Mean relative error compared to Google API: 24.60%
-2025-06-11 13:23:36 | INFO | 	90% of TravelTime results differ from Google API by less than 29%
+2025-06-11 13:23:36 | INFO | 	90% of TomTom results differ from Google API by less than 29%
 ```
 
 ## File output

@@ -48,7 +48,7 @@ def log_results(
                 results_with_differences, quantile, target_name, name
             )
             logging.info(
-                f"\t{int(quantile * 100)}% of TravelTime results differ from {capitalized_provider} API "
+                f"\t{int(quantile * 100)}% of {capitalized_target} results differ from {capitalized_provider} API "
                 f"by less than {int(quantile_errors.relative_error)}%"
             )
 
