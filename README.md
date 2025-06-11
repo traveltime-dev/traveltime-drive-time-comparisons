@@ -119,13 +119,23 @@ all providers
 
 ```
 
-It also contains more detailed comparisons with the TravelTime API
+It also contains more detailed comparisons with each API 
 ```
-2025-01-24 15:30:00 | INFO | Comparing TravelTime to other providers:
-2025-01-24 15:30:00 | INFO | Mean relative error compared to Google API: 6.78%
-2025-01-24 15:30:00 | INFO | 90% of TravelTime results differ from Google API by less than 6%
-2025-01-24 15:30:00 | INFO | Mean relative error compared to TomTom API: 12.33%
-2025-01-24 15:30:00 | INFO | 90% of TravelTime results differ from TomTom API by less than 12%
+2025-06-11 13:23:36 | INFO | Comparing TravelTime to other providers:
+2025-06-11 13:23:36 | INFO | 	Mean relative error compared to Google API: 12.91%
+2025-06-11 13:23:36 | INFO | 	90% of TravelTime results differ from Google API by less than 32%
+2025-06-11 13:23:36 | INFO | 	Mean relative error compared to TomTom API: 26.50%
+2025-06-11 13:23:36 | INFO | 	90% of TravelTime results differ from TomTom API by less than 48%
+2025-06-11 13:23:36 | INFO | Comparing Google to other providers:
+2025-06-11 13:23:36 | INFO | 	Mean relative error compared to TravelTime API: 17.11%
+2025-06-11 13:23:36 | INFO | 	90% of Google results differ from TravelTime API by less than 48%
+2025-06-11 13:23:36 | INFO | 	Mean relative error compared to TomTom API: 33.21%
+2025-06-11 13:23:36 | INFO | 	90% of Google results differ from TomTom API by less than 40%
+2025-06-11 13:23:36 | INFO | Comparing TomTom to other providers:
+2025-06-11 13:23:36 | INFO | 	Mean relative error compared to TravelTime API: 19.58%
+2025-06-11 13:23:36 | INFO | 	90% of TomTom results differ from TravelTime API by less than 32%
+2025-06-11 13:23:36 | INFO | 	Mean relative error compared to Google API: 24.60%
+2025-06-11 13:23:36 | INFO | 	90% of TomTom results differ from Google API by less than 29%
 ```
 
 ## File output
@@ -136,10 +146,13 @@ The output file will contain the `origin` and `destination` columns from input f
   - `tt_travel_time`: travel time gathered from TravelTime API in seconds
   - `error_percentage_*`: relative error between provider and TravelTime travel times in percent, relative to provider result.
 
-### Sample output
+### Sample output with 3 providers - TravelTime, Google and TomTom
 ```csv
-origin,destination,departure_time,google_travel_time,tomtom_travel_time,here_travel_time,osrm_travel_time,openroutes_travel_time,mapbox_travel_time,tt_travel_time,error_percentage_google,error_percentage_tomtom,error_percentage_here,error_percentage_mapbox,error_percentage_osrm,error_percentage_openroutes
-"52.200400622501455, 0.1082577055247136","52.21614536733819, 0.15782831362961777",2024-09-25 07:00:00+0100,621.0,805.0,614.0,532.0,697.0,1018.0,956.0,53,18,55,6,79,37
+origin,destination,departure_time,tt_travel_time,google_travel_time,tomtom_travel_time,error_percentage_traveltime_to_google,error_percentage_traveltime_to_tomtom,error_percentage_google_to_traveltime,error_percentage_google_to_tomtom,error_percentage_tomtom_to_traveltime,error_percentage_tomtom_to_google
+"33.05187660000014 , -117.1350031999999","33.14408130000009 , -117.02942509999977",2025-06-20 13:00:00-0700,1970.0,2224.0,1869.0,11,5,12,18,5,15
+"33.05187660000014 , -117.1350031999999","33.14408130000009 , -117.02942509999977",2025-06-20 16:00:00-0700,2052.0,3042.0,2274.0,32,9,48,33,10,25
+"37.36713689999986 , -122.09885940000017","37.35365440000001 , -122.21751989999996",2025-06-20 13:00:00-0700,1868.0,1832.0,1317.0,1,41,1,39,29,28
+"37.36713689999986 , -122.09885940000017","37.35365440000001 , -122.21751989999996",2025-06-20 16:00:00-0700,2004.0,1896.0,1345.0,5,48,5,40,32,29
 ```
 
 ## License
