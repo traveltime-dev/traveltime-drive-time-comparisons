@@ -26,7 +26,9 @@ def test_generate_time_instants_with_valid_times():
 def test_generate_time_instants_when_no_times_are_provided():
     timezone = pytz.UTC
     times = ""
-    with pytest.raises(ValueError, match="At least one departure time must be provided."):
+    with pytest.raises(
+        ValueError, match="At least one departure time must be provided."
+    ):
         generate_time_instants(times, "2023-09-05", timezone)
 
 

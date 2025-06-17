@@ -100,7 +100,7 @@ async def collect_travel_times(
     provider_names: List[str],
 ) -> DataFrame:
     timezone = pytz.timezone(args.time_zone_id)
-    time_instants = generate_time_instants(args.departure_times,args,timezone)
+    time_instants = generate_time_instants(args.departure_times, args, timezone)
 
     tasks = generate_tasks(data, time_instants, request_handlers, mode=Mode.DRIVING)
 
@@ -119,9 +119,13 @@ async def collect_travel_times(
     return deduplicated
 
 
-def generate_time_instants(departure_times_str: str, date: str, timezone: BaseTzInfo) -> List[datetime]:
+def generate_time_instants(
+    departure_times_str: str, date: str, timezone: BaseTzInfo
+) -> List[datetime]:
     if departure_times_str.strip() != "":
-        times = [departure_time.strip() for departure_time in departure_times_str.split(',')]
+        times = [
+            departure_time.strip() for departure_time in departure_times_str.split(",")
+        ]
         return [localize_datetime(date, time, timezone) for time in times]
     else:
         raise ValueError("At least one departure time must be provided.")
