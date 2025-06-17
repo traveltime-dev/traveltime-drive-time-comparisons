@@ -100,7 +100,7 @@ async def collect_travel_times(
     provider_names: List[str],
 ) -> DataFrame:
     timezone = pytz.timezone(args.time_zone_id)
-    time_instants = generate_time_instants(args.departure_times, args, timezone)
+    time_instants = generate_time_instants(args.departure_times, args.date, timezone)
 
     tasks = generate_tasks(data, time_instants, request_handlers, mode=Mode.DRIVING)
 
