@@ -62,10 +62,10 @@ def parse_args():
     parser.add_argument("--input", required=True, help="Input CSV file path")
     parser.add_argument("--output", required=True, help="Output CSV file path")
     parser.add_argument("--date", required=True, help="Date (YYYY-MM-DD)")
-    parser.add_argument("--start-time", required=True, help="Start time (HH:MM)")
-    parser.add_argument("--end-time", required=True, help="End time (HH:MM)")
     parser.add_argument(
-        "--interval", required=True, type=int, help="Interval in minutes"
+        "--departure-times",
+        required=True,
+        help="Departure times, separated by `,` (HH:MM, HH:MM)",
     )
     parser.add_argument(
         "--time-zone-id",

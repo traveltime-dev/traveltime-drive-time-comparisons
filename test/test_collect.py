@@ -11,47 +11,24 @@ from traveltime_drive_time_comparisons.collect import (
 )
 
 
-def test_generate_time_instants_with_time_window_divisible_by_interval():
-    start = datetime(2023, 9, 5, 12, 0)
-    end = datetime(2023, 9, 5, 14, 0)
-    interval = 60
-    result = generate_time_instants(start, end, interval)
+def test_generate_time_instants_with_valid_times():
+    timezone = pytz.UTC
+    times = "12:00, 13:00"
+    result = generate_time_instants(times, "2023-09-05", timezone)
     expected = [
-        datetime(2023, 9, 5, 12, 0),
-        datetime(2023, 9, 5, 13, 0),
-        datetime(2023, 9, 5, 14, 0),
+        datetime(2023, 9, 5, 12, 0, tzinfo=timezone),
+        datetime(2023, 9, 5, 13, 0, tzinfo=timezone),
     ]
     assert result == expected
 
 
-def test_generate_time_instants_when_time_window_is_smaller_than_interval():
-    start = datetime(2023, 9, 5, 12, 0)
-    end = datetime(2023, 9, 5, 12, 2)
-    interval = 60
-    result = generate_time_instants(start, end, interval)
-    expected = [datetime(2023, 9, 5, 12, 0)]
-    assert result == expected
-
-
-def test_generate_time_instants_with_time_window_not_fully_divisible_by_interval():
-    start = datetime(2023, 9, 5, 12, 0)
-    end = datetime(2023, 9, 5, 14, 10)
-    interval = 45
-    result = generate_time_instants(start, end, interval)
-    expected = [
-        datetime(2023, 9, 5, 12, 0),
-        datetime(2023, 9, 5, 12, 45),
-        datetime(2023, 9, 5, 13, 30),
-    ]
-    assert result == expected
-
-
-def test_generate_time_instants_with_end_time_before_start_raises_error():
-    start = datetime(2023, 9, 5, 12, 0)
-    end = datetime(2023, 9, 5, 11, 0)
-    interval = 60
-    with pytest.raises(ValueError):
-        generate_time_instants(start, end, interval)
+def test_generate_time_instants_when_no_times_are_provided():
+    timezone = pytz.UTC
+    times = ""
+    with pytest.raises(
+        ValueError, match="At least one departure time must be provided."
+    ):
+        generate_time_instants(times, "2023-09-05", timezone)
 
 
 def test_parse_coordinates_simple_case():

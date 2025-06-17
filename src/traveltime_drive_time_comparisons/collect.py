@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List, Dict, Optional
 
 import pandas as pd
@@ -100,11 +100,7 @@ async def collect_travel_times(
     provider_names: List[str],
 ) -> DataFrame:
     timezone = pytz.timezone(args.time_zone_id)
-    localized_start_datetime = localize_datetime(args.date, args.start_time, timezone)
-    localized_end_datetime = localize_datetime(args.date, args.end_time, timezone)
-    time_instants = generate_time_instants(
-        localized_start_datetime, localized_end_datetime, args.interval
-    )
+    time_instants = generate_time_instants(args.departure_times, args.date, timezone)
 
     tasks = generate_tasks(data, time_instants, request_handlers, mode=Mode.DRIVING)
 
@@ -124,13 +120,12 @@ async def collect_travel_times(
 
 
 def generate_time_instants(
-    start_time: datetime, end_time: datetime, interval: int
+    departure_times_str: str, date: str, timezone: BaseTzInfo
 ) -> List[datetime]:
-    if start_time > end_time:
-        raise ValueError("Start time must be before end time.")
-    current_time = start_time
-    results = []
-    while current_time <= end_time:
-        results.append(current_time)
-        current_time += timedelta(minutes=interval)
-    return results
+    if departure_times_str.strip() != "":
+        times = [
+            departure_time.strip() for departure_time in departure_times_str.split(",")
+        ]
+        return [localize_datetime(date, time, timezone) for time in times]
+    else:
+        raise ValueError("At least one departure time must be provided.")
