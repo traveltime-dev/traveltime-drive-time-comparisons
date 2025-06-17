@@ -14,7 +14,6 @@ Source code is available on [GitHub](https://github.com/traveltime-dev/traveltim
 
 - Get travel times from TravelTime API, Google Maps API, TomTom API, HERE API, Mapbox API, OSRM API and Valhalla API in parallel, for provided origin/destination pairs and a set 
     of departure times.
-- Departure times are calculated based on user provided start time, end time and interval.  
 - Analyze the differences between the results and print out an accuracy comparison, also the average error percentage when compared to TravelTime.
 
 ## Prerequisites
@@ -64,8 +63,7 @@ You can also disable unwanted APIs by changing the `enabled` value to `false`.
 Run the tool:
 ```bash
 traveltime_drive_time_comparisons --input [Input CSV file path] --output [Output CSV file path] \
-    --date [Date (YYYY-MM-DD)] --start-time [Start time (HH:MM)] --end-time [End time (HH:MM)] \
-    --interval [Interval in minutes] --time-zone-id [Time zone ID] 
+    --date [Date (YYYY-MM-DD)] --departure-times [Departure times (HH:MM, HH:MM)] --time-zone-id [Time zone ID] 
 ```
 Required arguments:
 - `--input [Input CSV file path]`: Path to the input file. Input file is required to have a header row and at least one 
@@ -78,12 +76,7 @@ Required arguments:
   See the details in the [Output section](#output)
 - `--date [Date (YYYY-MM-DD)]`: date on which the travel times are gathered. Use a future date, as Google API returns
   errors for past dates (and times). Take into account the time needed to collect the data for provided input.
-- `--start-time [Start time (HH:MM)]`: start time in `HH:MM` format, used for calculation of departure times.
-  See [Calculating departure times](#calculating-departure-times)
-- `--end-time [End time (HH:MM)]`: end time in `HH:MM` format, used for calculation of departure times.
-  See [Calculating departure times](#calculating-departure-times)
-- `--interval [Interval in minutes]`: interval in minutes, used for calculation of departure times. 
-   See [Calculating departure times](#calculating-departure-times)
+- `--departure-times [Departure times (HH:MM)]`: All departure times in `HH:MM` format, separated by comma ",", spaces can be used.
 - `--time-zone-id [Time zone ID]`: non-abbreviated time zone identifier in which the time values are specified. 
   For example: `Europe/London`. For more information, see [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
@@ -94,16 +87,8 @@ Example:
 
 ```bash
 traveltime_drive_time_comparisons --input examples/uk.csv --output output.csv --date 2023-09-20 \
-    --start-time 07:00 --end-time 20:00 --interval 180 --time-zone-id "Europe/London"
+    --departure-times "07:00, 10:00, 13:00, 16:00, 19:00" --time-zone-id "Europe/London"
 ```
-
-## Calculating departure times
-Script will collect travel times on the given day for departure times between provided start-time and end-time, with the
-given interval. The start-time and end-time are in principle inclusive, however if the time window is not exactly divisible by the 
-given interval, the end-time will not be included. For example, if you set the start-time to 08:00, end-time to 20:00 
-and interval to 240, the script will sample both APIs for departure times 08:00, 12:00, 16:00 and 20:00 (end-time 
-included). But for interval equal to 300, the script will sample APIs for departure times 08:00, 13:00 and 18:00 (end-time 
-is not included).
 
 ## Console output
 
@@ -140,7 +125,7 @@ It also contains more detailed comparisons with each API
 
 ## File output
 The output file will contain the `origin` and `destination` columns from input file, with some additional columns: 
-  - `departure_time`: departure time in `YYYY-MM-DD HH:MM:SS±HHMM` format, calculated from the start-time, end-time and interval.
+  - `departure_time`: departure time in `YYYY-MM-DD HH:MM:SS±HHMM` format.
     It includes date, time and timezone offset.
   - `*_travel_time`: travel time gathered from alternative provider API in seconds
   - `tt_travel_time`: travel time gathered from TravelTime API in seconds
