@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List, Dict, Optional
 
 import pandas as pd
