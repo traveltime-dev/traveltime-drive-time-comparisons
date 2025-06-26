@@ -64,7 +64,7 @@ def initialize_request_handlers(providers: Providers) -> Dict[str, BaseRequestHa
 
     def create_traveltime_handler(provider: Provider):
         return TravelTimeRequestHandler(
-            provider.credentials.app_id, provider.credentials.api_key, provider.max_rpm, provider.api_endpoint
+            provider.credentials.app_id, provider.credentials.api_key, provider.max_rpm
         )
 
     handler_mapping = {
