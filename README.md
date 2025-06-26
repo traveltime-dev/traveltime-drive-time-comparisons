@@ -38,6 +38,7 @@ pip install traveltime-drive-time-comparisons
 
 ## Setup
 Provide credentials and desired max requests per minute for the APIs inside the `config.json` file.
+Optionally, you can set a custom endpoint for each provider.
 You can also disable unwanted APIs by changing the `enabled` value to `false`.
 
 ```json
@@ -52,7 +53,8 @@ You can also disable unwanted APIs by changing the `enabled` value to `false`.
       "name": "google",
       "enabled": true,
       "api-key": "<your-api-key>",
-      "max-rpm": "60"
+      "max-rpm": "60",
+      "api-endpoint": "custom-endpoint.com"
     },
     ...other providers
   ]

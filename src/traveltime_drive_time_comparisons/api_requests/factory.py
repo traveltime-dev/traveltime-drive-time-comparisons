@@ -42,29 +42,42 @@ from traveltime_drive_time_comparisons.api_requests.traveltime_handler import (
 
 def initialize_request_handlers(providers: Providers) -> Dict[str, BaseRequestHandler]:
     def create_google_handler(provider: Provider):
-        return GoogleRequestHandler(provider.credentials.api_key, provider.max_rpm)
+        return GoogleRequestHandler(
+            provider.credentials.api_key, provider.max_rpm, provider.api_endpoint
+        )
 
     def create_tomtom_handler(provider: Provider):
-        return TomTomRequestHandler(provider.credentials.api_key, provider.max_rpm)
+        return TomTomRequestHandler(
+            provider.credentials.api_key, provider.max_rpm, provider.api_endpoint
+        )
 
     def create_here_handler(provider: Provider):
-        return HereRequestHandler(provider.credentials.api_key, provider.max_rpm)
+        return HereRequestHandler(
+            provider.credentials.api_key, provider.max_rpm, provider.api_endpoint
+        )
 
     def create_osrm_handler(provider: Provider):
-        return OSRMRequestHandler("", provider.max_rpm)
+        return OSRMRequestHandler("", provider.max_rpm, provider.api_endpoint)
 
     def create_openroutes_handler(provider: Provider):
-        return OpenRoutesRequestHandler(provider.credentials.api_key, provider.max_rpm)
+        return OpenRoutesRequestHandler(
+            provider.credentials.api_key, provider.max_rpm, provider.api_endpoint
+        )
 
     def create_mapbox_handler(provider: Provider):
-        return MapboxRequestHandler(provider.credentials.api_key, provider.max_rpm)
+        return MapboxRequestHandler(
+            provider.credentials.api_key, provider.max_rpm, provider.api_endpoint
+        )
 
     def create_valhalla_handler(provider: Provider):
-        return ValhallaRequestHandler("", provider.max_rpm)
+        return ValhallaRequestHandler("", provider.max_rpm, provider.api_endpoint)
 
     def create_traveltime_handler(provider: Provider):
         return TravelTimeRequestHandler(
-            provider.credentials.app_id, provider.credentials.api_key, provider.max_rpm
+            provider.credentials.app_id,
+            provider.credentials.api_key,
+            provider.max_rpm,
+            provider.api_endpoint,
         )
 
     handler_mapping = {

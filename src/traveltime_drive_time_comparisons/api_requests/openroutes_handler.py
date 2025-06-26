@@ -19,13 +19,17 @@ class OpenRoutesError(Exception):
 
 
 class OpenRoutesRequestHandler(BaseRequestHandler):
-    OPEN_ROUTES_URL = "https://api.openrouteservice.org/v2/directions"
+    DEFAULT_API_ENDPOINT = "https://api.openrouteservice.org"
+    ROUTING_PATH = "/v2/directions"
 
     default_timeout = aiohttp.ClientTimeout(total=60)
 
-    def __init__(self, api_key, max_rpm):
+    def __init__(self, api_key, max_rpm, api_endpoint):
         self.api_key = api_key
         self._rate_limiter = create_async_limiter(max_rpm)
+
+        base_url = api_endpoint or self.DEFAULT_API_ENDPOINT
+        self.routing_url = base_url + self.ROUTING_PATH
 
     async def send_request(
         self,
@@ -44,7 +48,7 @@ class OpenRoutesRequestHandler(BaseRequestHandler):
             async with aiohttp.ClientSession(
                 timeout=self.default_timeout
             ) as session, session.get(
-                f"{self.OPEN_ROUTES_URL}/{transport_mode}", params=params
+                f"{self.routing_url}/{transport_mode}", params=params
             ) as response:
                 data = await response.json()
                 if response.status == 200:

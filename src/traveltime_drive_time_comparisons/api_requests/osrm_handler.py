@@ -19,13 +19,17 @@ class OSRMApiError(Exception):
 
 
 class OSRMRequestHandler(BaseRequestHandler):
-    OSRM_ROUTES_URL = "http://router.project-osrm.org/route/v1/"
+    DEFAULT_API_ENDPOINT = "http://router.project-osrm.org"
+    ROUTING_PATH = "/route/v1/"
 
     default_timeout = aiohttp.ClientTimeout(total=60)
 
-    def __init__(self, api_key, max_rpm):
+    def __init__(self, api_key, max_rpm, api_endpoint):
         self.api_key = api_key
         self._rate_limiter = create_async_limiter(max_rpm)
+
+        base_url = api_endpoint or self.DEFAULT_API_ENDPOINT
+        self.routing_url = base_url + self.ROUTING_PATH
 
     async def send_request(
         self,
@@ -45,7 +49,7 @@ class OSRMRequestHandler(BaseRequestHandler):
             async with aiohttp.ClientSession(
                 timeout=self.default_timeout
             ) as session, session.get(
-                f"{self.OSRM_ROUTES_URL}{transport_mode}/{route}", params=params
+                f"{self.routing_url}{transport_mode}/{route}", params=params
             ) as response:
                 data = await response.json()
                 if response.status == 200:

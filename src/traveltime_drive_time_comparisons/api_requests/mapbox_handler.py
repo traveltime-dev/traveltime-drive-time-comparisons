@@ -19,13 +19,17 @@ class MapboxApiError(Exception):
 
 
 class MapboxRequestHandler(BaseRequestHandler):
-    MAPBOX_ROUTES_URL = "https://api.mapbox.com/directions/v5/mapbox"
+    DEFAULT_API_ENDPOINT = "https://api.mapbox.com"
+    ROUTING_PATH = "/directions/v5/mapbox"
 
     default_timeout = aiohttp.ClientTimeout(total=60)
 
-    def __init__(self, api_key, max_rpm):
+    def __init__(self, api_key, max_rpm, api_endpoint):
         self.api_key = api_key
         self._rate_limiter = create_async_limiter(max_rpm)
+
+        base_url = api_endpoint or self.DEFAULT_API_ENDPOINT
+        self.routing_url = base_url + self.ROUTING_PATH
 
     async def send_request(
         self,
@@ -45,7 +49,7 @@ class MapboxRequestHandler(BaseRequestHandler):
             async with aiohttp.ClientSession(
                 timeout=self.default_timeout
             ) as session, session.get(
-                f"{self.MAPBOX_ROUTES_URL}/{transport_mode}/{route}", params=params
+                f"{self.routing_url}/{transport_mode}/{route}", params=params
             ) as response:
                 data = await response.json()
                 if response.status == 200:
