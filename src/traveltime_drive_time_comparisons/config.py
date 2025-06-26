@@ -1,7 +1,7 @@
 import argparse
 from dataclasses import dataclass
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 import pandas
 import json
@@ -36,6 +36,7 @@ class Provider:
     name: str
     max_rpm: int
     credentials: Credentials
+    api_endpoint: Optional[str]
 
 
 @dataclass
@@ -100,6 +101,7 @@ def parse_json_to_providers(json_data: str) -> Providers:
         credentials=Credentials(
             app_id=traveltime_data["app-id"], api_key=traveltime_data["api-key"]
         ),
+        api_endpoint=traveltime_data.get("api-endpoint"),
     )
 
     # Parse competitor providers
@@ -111,6 +113,7 @@ def parse_json_to_providers(json_data: str) -> Providers:
                 name=provider_data["name"],
                 max_rpm=int(provider_data["max-rpm"]),
                 credentials=Credentials(api_key=provider_data["api-key"]),
+                api_endpoint=provider_data.get("api-endpoint"),
             )
             competitors.append(competitor)
 

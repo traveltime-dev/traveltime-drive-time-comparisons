@@ -19,13 +19,16 @@ class TomTomApiError(Exception):
 
 
 class TomTomRequestHandler(BaseRequestHandler):
-    TOMTOM_ROUTING_URL = "https://api.tomtom.com/routing/1/calculateRoute/"
+    DEFAULT_API_ENDPOINT = "https://api.tomtom.com"
+    ROUTING_PATH = "/routing/1/calculateRoute/"
 
     default_timeout = aiohttp.ClientTimeout(total=60)
 
-    def __init__(self, api_key, max_rpm):
+    def __init__(self, api_key, max_rpm, api_endpoint):
         self.api_key = api_key
         self._rate_limiter = create_async_limiter(max_rpm)
+        base_url = api_endpoint or self.DEFAULT_API_ENDPOINT
+        self.routing_url = base_url + self.ROUTING_PATH
 
     async def send_request(
         self,
@@ -44,7 +47,7 @@ class TomTomRequestHandler(BaseRequestHandler):
             async with aiohttp.ClientSession(
                 timeout=self.default_timeout
             ) as session, session.get(
-                f"{self.TOMTOM_ROUTING_URL}{route}/json", params=params
+                f"{self.routing_url}{route}/json", params=params
             ) as response:
                 data = await response.json()
                 if response.status == 200:
