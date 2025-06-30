@@ -19,13 +19,16 @@ class HereApiError(Exception):
 
 
 class HereRequestHandler(BaseRequestHandler):
-    HERE_ROUTES_URL = "https://router.hereapi.com/v8/routes"
+    DEFAULT_API_ENDPOINT = "https://router.hereapi.com"
+    ROUTING_PATH = "/v8/routes"
 
     default_timeout = aiohttp.ClientTimeout(total=60)
 
-    def __init__(self, api_key, max_rpm):
+    def __init__(self, api_key, max_rpm, api_endpoint):
         self.api_key = api_key
         self._rate_limiter = create_async_limiter(max_rpm)
+        base_url = api_endpoint or self.DEFAULT_API_ENDPOINT
+        self.routing_url = base_url + self.ROUTING_PATH
 
     async def send_request(
         self,
@@ -45,7 +48,7 @@ class HereRequestHandler(BaseRequestHandler):
         try:
             async with aiohttp.ClientSession(
                 timeout=self.default_timeout
-            ) as session, session.get(self.HERE_ROUTES_URL, params=params) as response:
+            ) as session, session.get(self.routing_url, params=params) as response:
                 data = await response.json()
                 if response.status == 200:
                     first_route = data["routes"][0]

@@ -23,7 +23,8 @@ def test_json_config_parse():
               "name": "google",
               "enabled": true,
               "api-key": "<your-api-key>",
-              "max-rpm": "60"
+              "max-rpm": "60",
+              "api-endpoint": "some-custom-endpoint.com"
             },
             {
               "name": "tomtom",
@@ -42,10 +43,14 @@ def test_json_config_parse():
             name="traveltime",
             max_rpm=60,
             credentials=Credentials(app_id="<your-app-id>", api_key="<your-api-key>"),
+            api_endpoint=None,
         ),
         competitors=[
             Provider(
-                name="google", max_rpm=60, credentials=Credentials("<your-api-key>")
+                name="google",
+                max_rpm=60,
+                credentials=Credentials("<your-api-key>"),
+                api_endpoint="some-custom-endpoint.com",
             )
         ],
     )

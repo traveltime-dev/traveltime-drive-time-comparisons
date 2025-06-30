@@ -28,8 +28,16 @@ PROVIDERS = Providers(
         name="traveltime",
         max_rpm=60,
         credentials=Credentials(app_id="test", api_key="test"),
+        api_endpoint=None,
     ),
-    competitors=[Provider(name="google", max_rpm=60, credentials=Credentials("test"))],
+    competitors=[
+        Provider(
+            name="google",
+            max_rpm=60,
+            credentials=Credentials("test"),
+            api_endpoint=None,
+        )
+    ],
 )
 
 

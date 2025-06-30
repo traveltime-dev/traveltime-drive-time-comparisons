@@ -28,13 +28,13 @@ class GoogleApiError(Exception):
 
 
 class GoogleRequestHandler(BaseRequestHandler):
-    def __init__(self, api_key, max_rpm):
+    def __init__(self, api_key, max_rpm, api_endpoint):
         self.api_key = api_key
         self._rate_limiter = create_async_limiter(max_rpm)
 
         from google.api_core.client_options import ClientOptions
 
-        client_options = ClientOptions(api_key=self.api_key)
+        client_options = ClientOptions(api_key=self.api_key, api_endpoint=api_endpoint)
         self.client = RoutesClient(client_options=client_options)
 
     async def send_request(
