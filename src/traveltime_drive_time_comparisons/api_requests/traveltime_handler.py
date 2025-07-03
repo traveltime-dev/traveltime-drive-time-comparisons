@@ -2,15 +2,17 @@ from datetime import datetime
 from typing import Union
 import logging
 
-from traveltimepy import (
-    Location,
+from traveltimepy import AsyncClient
+from traveltimepy.requests.common import (
     Coordinates,
-    TravelTimeSdk,
-    Driving,
     Property,
-    PublicTransport,
+    Snapping,
+    SnappingAcceptRoads,
+    SnappingPenalty,
+    Location,
 )
-from traveltimepy.dto.common import Snapping, SnappingPenalty, SnappingAcceptRoads
+from traveltimepy.requests.routes import RoutesDepartureSearch
+from traveltimepy.requests.transportation import Driving, PublicTransport
 
 from traveltime_drive_time_comparisons.config import Mode
 from traveltime_drive_time_comparisons.api_requests.base_handler import (
@@ -27,15 +29,14 @@ class TravelTimeRequestHandler(BaseRequestHandler):
     DESTINATION_ID = "d"
 
     def __init__(self, app_id, api_key, max_rpm, api_endpoint):
-        sdk_kwargs = {
+        self.sdk_kwargs = {
             "app_id": app_id,
             "api_key": api_key,
-            "user_agent": "Travel Time Comparison Tool",
+            "_user_agent": "Travel Time Comparison Tool",
         }
         if api_endpoint is not None:
-            sdk_kwargs["host"] = api_endpoint
+            self.sdk_kwargs["_host"] = api_endpoint
 
-        self.sdk = TravelTimeSdk(**sdk_kwargs)
         self._rate_limiter = create_async_limiter(max_rpm)
 
     async def send_request(
@@ -49,33 +50,39 @@ class TravelTimeRequestHandler(BaseRequestHandler):
             Location(id=self.ORIGIN_ID, coords=origin),
             Location(id=self.DESTINATION_ID, coords=destination),
         ]
-        results = None
-        try:
-            results = await self.sdk.routes_async(
-                locations=locations,
-                search_ids={
-                    self.ORIGIN_ID: [self.DESTINATION_ID],
-                },
-                transportation=get_traveltime_specific_mode(mode),
-                departure_time=departure_time,
-                properties=[Property.TRAVEL_TIME],
-                snapping=Snapping(
-                    penalty=SnappingPenalty.DISABLED,
-                    accept_roads=SnappingAcceptRoads.BOTH_DRIVABLE_AND_WALKABLE,
-                ),
-            )
-        except Exception as e:
-            logger.error(f"Exception during requesting TravelTime API, {e}")
-            return RequestResult(None)
+        response = None
+        async with AsyncClient(**self.sdk_kwargs) as client:
+            try:
+                response = await client.routes(
+                    locations=locations,
+                    departure_searches=[
+                        RoutesDepartureSearch(
+                            id=f"{origin} to {destination} at {departure_time} with {mode}",
+                            departure_location_id=self.ORIGIN_ID,
+                            arrival_location_ids=[self.DESTINATION_ID],
+                            transportation=get_traveltime_specific_mode(mode),
+                            departure_time=departure_time,
+                            properties=[Property.TRAVEL_TIME],
+                            snapping=Snapping(
+                                penalty=SnappingPenalty.DISABLED,
+                                accept_roads=SnappingAcceptRoads.BOTH_DRIVABLE_AND_WALKABLE,
+                            ),
+                        )
+                    ],
+                    arrival_searches=[],
+                )
+            except Exception as e:
+                logger.error(f"Exception during requesting TravelTime API, {e}")
+                return RequestResult(None)
 
         if (
-            not results
-            or not results[0].locations
-            or not results[0].locations[0].properties
+            not response
+            or not response.results[0].locations
+            or not response.results[0].locations[0].properties
         ):
             return RequestResult(None)
 
-        properties = results[0].locations[0].properties[0]
+        properties = response.results[0].locations[0].properties[0]
         return RequestResult(travel_time=properties.travel_time)
 
 
