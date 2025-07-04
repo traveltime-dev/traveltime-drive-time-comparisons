@@ -7,7 +7,7 @@ import pandas as pd
 import pytz
 from pandas import DataFrame
 from pytz.tzinfo import BaseTzInfo
-from traveltimepy import Coordinates
+from traveltimepy.requests.common import Coordinates
 
 from traveltime_drive_time_comparisons.common import (
     Fields,

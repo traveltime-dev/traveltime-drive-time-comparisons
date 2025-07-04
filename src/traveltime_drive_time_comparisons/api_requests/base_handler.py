@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Optional
 
 from aiolimiter import AsyncLimiter
-from traveltimepy import Coordinates
+from traveltimepy.requests.common import Coordinates
 
 from traveltime_drive_time_comparisons.config import Mode
 
