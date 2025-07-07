@@ -1,7 +1,7 @@
 from enum import Enum
 
 import pytest
-from traveltimepy import Driving, PublicTransport
+from traveltimepy.requests.transportation import Driving, PublicTransport
 
 from traveltime_drive_time_comparisons.config import Mode
 from traveltime_drive_time_comparisons.api_requests.traveltime_handler import (

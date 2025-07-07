@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 
 import pytz
-from traveltimepy import Coordinates
+from traveltimepy.requests.common import Coordinates
 
 from traveltime_drive_time_comparisons.collect import (
     generate_time_instants,
