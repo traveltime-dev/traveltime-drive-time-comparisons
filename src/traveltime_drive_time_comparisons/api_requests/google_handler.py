@@ -52,9 +52,7 @@ class GoogleRequestHandler(BaseRequestHandler):
         try:
             async with aiohttp.ClientSession(
                 timeout=self.default_timeout
-            ) as session, session.get(
-                self.routing_url, params=params
-            ) as response:
+            ) as session, session.get(self.routing_url, params=params) as response:
                 data = await response.json()
                 status = data["status"]
 
