@@ -12,7 +12,6 @@ VALHALLA_API = "valhalla"
 
 
 PROVIDER_COLUMN = "Provider"
-ACCURACY_COLUMN = "Accuracy %"
 
 
 @dataclass
