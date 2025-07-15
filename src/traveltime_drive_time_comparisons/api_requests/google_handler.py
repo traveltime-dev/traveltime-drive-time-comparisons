@@ -1,16 +1,9 @@
+# For Google Directions API
+
 import logging
 from datetime import datetime
 
-from google.maps.routing_v2 import RoutesClient, ComputeRoutesRequest, Waypoint
-from google.maps.routing_v2.types import (
-    RouteTravelMode,
-    RoutingPreference,
-    Location,
-    TrafficModel,
-)
-from google.type.latlng_pb2 import LatLng  # type: ignore
-from google.protobuf.timestamp_pb2 import Timestamp
-
+import aiohttp
 from traveltimepy.requests.common import Coordinates
 
 from traveltime_drive_time_comparisons.config import Mode
@@ -28,14 +21,18 @@ class GoogleApiError(Exception):
 
 
 class GoogleRequestHandler(BaseRequestHandler):
+    DURATION_IN_TRAFFIC = "duration_in_traffic"
+    DURATION = "duration"
+    DEFAULT_API_ENDPOINT = "https://maps.googleapis.com"
+    ROUTING_PATH = "/maps/api/directions/json"
+
+    default_timeout = aiohttp.ClientTimeout(total=60)
+
     def __init__(self, api_key, max_rpm, api_endpoint):
         self.api_key = api_key
         self._rate_limiter = create_async_limiter(max_rpm)
-
-        from google.api_core.client_options import ClientOptions
-
-        client_options = ClientOptions(api_key=self.api_key, api_endpoint=api_endpoint)
-        self.client = RoutesClient(client_options=client_options)
+        base_url = api_endpoint or self.DEFAULT_API_ENDPOINT
+        self.routing_url = base_url + self.ROUTING_PATH
 
     async def send_request(
         self,
@@ -44,50 +41,49 @@ class GoogleRequestHandler(BaseRequestHandler):
         departure_time: datetime,
         mode: Mode,
     ) -> RequestResult:
+        params = {
+            "origin": "{},{}".format(origin.lat, origin.lng),
+            "destination": "{},{}".format(destination.lat, destination.lng),
+            "mode": get_google_travel_mode(mode),
+            "traffic_model": "best_guess",
+            "departure_time": int(departure_time.timestamp()),
+            "key": self.api_key,
+        }
         try:
-            origin_location = Location(
-                lat_lng=LatLng(latitude=origin.lat, longitude=origin.lng)
-            )
-            origin_waypoint = Waypoint(location=origin_location)
+            async with aiohttp.ClientSession(
+                timeout=self.default_timeout
+            ) as session, session.get(self.routing_url, params=params) as response:
+                data = await response.json()
+                status = data["status"]
 
-            destination_location = Location(
-                lat_lng=LatLng(latitude=destination.lat, longitude=destination.lng)
-            )
-            destination_waypoint = Waypoint(location=destination_location)
+                if status == "OK":
+                    route = data.get("routes", [{}])[0]
+                    leg = route.get("legs", [{}])[0]
 
-            departure_timestamp = Timestamp()
-            departure_timestamp.FromDatetime(departure_time)
+                    if not leg:
+                        raise GoogleApiError(
+                            "No route found between origin and destination."
+                        )
 
-            request = ComputeRoutesRequest(
-                origin=origin_waypoint,
-                destination=destination_waypoint,
-                travel_mode=get_google_travel_mode(mode),
-                routing_preference=RoutingPreference.TRAFFIC_AWARE_OPTIMAL,
-                departure_time=departure_timestamp,
-                traffic_model=TrafficModel.BEST_GUESS,
-            )
-
-            response = self.client.compute_routes(
-                request=request, metadata=[("x-goog-fieldmask", "routes.duration")]
-            )
-
-            if response.routes:
-                route = response.routes[0]
-                travel_time = route.duration.seconds
-                return RequestResult(travel_time=travel_time)
-            else:
-                logger.error("No routes returned from Google Maps Routing API")
-                return RequestResult(None)
-
+                    travel_time = leg.get(
+                        self.DURATION_IN_TRAFFIC, leg.get(self.DURATION)
+                    )["value"]
+                    return RequestResult(travel_time=travel_time)
+                else:
+                    error_message = data.get("error_message", "")
+                    logger.error(
+                        f"Error in Google API response: {status} - {error_message}"
+                    )
+                    return RequestResult(None)
         except Exception as e:
-            logger.error(f"Exception during requesting Google Maps Routing API: {e}")
+            logger.error(f"Exception during requesting Google API, {e}")
             return RequestResult(None)
 
 
-def get_google_travel_mode(mode: Mode) -> int:
+def get_google_travel_mode(mode: Mode) -> str:
     if mode == Mode.DRIVING:
-        return RouteTravelMode.DRIVE
+        return "driving"
     elif mode == Mode.PUBLIC_TRANSPORT:
-        return RouteTravelMode.TRANSIT
+        return "transit"
     else:
         raise ValueError(f"Unsupported mode: `{mode.value}`")

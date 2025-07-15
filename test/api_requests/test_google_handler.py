@@ -10,12 +10,12 @@ from traveltime_drive_time_comparisons.api_requests.google_handler import (
 
 def test_get_google_specific_mode_for_driving():
     result = get_google_travel_mode(Mode.DRIVING)
-    assert result == 1
+    assert result == "driving"
 
 
 def test_get_google_specific_mode_for_public_transport():
     result = get_google_travel_mode(Mode.PUBLIC_TRANSPORT)
-    assert result == 7
+    assert result == "transit"
 
 
 def test_get_google_specific_mode_for_unsupported_mode():
