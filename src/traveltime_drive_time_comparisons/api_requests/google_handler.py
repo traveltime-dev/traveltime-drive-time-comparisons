@@ -23,13 +23,16 @@ class GoogleApiError(Exception):
 class GoogleRequestHandler(BaseRequestHandler):
     DURATION_IN_TRAFFIC = "duration_in_traffic"
     DURATION = "duration"
-    GOOGLE_DIRECTIONS_URL = "https://maps.googleapis.com/maps/api/directions/json"
+    DEFAULT_API_ENDPOINT = "https://maps.googleapis.com"
+    ROUTING_PATH = "/maps/api/directions/json"
 
     default_timeout = aiohttp.ClientTimeout(total=60)
 
-    def __init__(self, api_key, max_rpm):
+    def __init__(self, api_key, max_rpm, api_endpoint):
         self.api_key = api_key
         self._rate_limiter = create_async_limiter(max_rpm)
+        base_url = api_endpoint or self.DEFAULT_API_ENDPOINT
+        self.routing_url = base_url + self.ROUTING_PATH
 
     async def send_request(
         self,
@@ -50,7 +53,7 @@ class GoogleRequestHandler(BaseRequestHandler):
             async with aiohttp.ClientSession(
                 timeout=self.default_timeout
             ) as session, session.get(
-                self.GOOGLE_DIRECTIONS_URL, params=params
+                self.routing_url, params=params
             ) as response:
                 data = await response.json()
                 status = data["status"]
