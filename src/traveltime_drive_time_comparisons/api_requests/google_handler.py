@@ -1,4 +1,4 @@
-# For Google Directions API (legacy). Only kept for now
+# For Google Directions API
 
 import logging
 from datetime import datetime
