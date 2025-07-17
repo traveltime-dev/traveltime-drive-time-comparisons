@@ -8,6 +8,8 @@ from pandas import DataFrame
 
 from traveltime_drive_time_comparisons.common import (
     PROVIDER_COLUMN,
+    ACCURARY_SCORE_COLUMN,
+    RELATIVE_TIME_COLUMN,
     Fields,
     get_capitalized_provider_name,
 )
@@ -200,8 +202,8 @@ def calculate_accuracies(data: pd.DataFrame, columns: Dict[str, str]) -> pd.Data
         results.append(
             {
                 PROVIDER_COLUMN: pretty_name,
-                "Accuracy Score (Google=100)": round(accuracy_score, 2),
-                "Relative Time (Google=100)": round(speed_index, 2),
+                ACCURARY_SCORE_COLUMN: round(accuracy_score, 2),
+                RELATIVE_TIME_COLUMN: round(speed_index, 2),
             }
         )
 
@@ -211,5 +213,5 @@ def calculate_accuracies(data: pd.DataFrame, columns: Dict[str, str]) -> pd.Data
     summary_df = pd.DataFrame(results)
     # Sort by the new Accuracy Score, with higher values being better (ascending=False)
     return summary_df.sort_values(
-        by="Accuracy Score (Google=100)", ascending=False
+        by=ACCURARY_SCORE_COLUMN, ascending=False
     ).reset_index(drop=True)
