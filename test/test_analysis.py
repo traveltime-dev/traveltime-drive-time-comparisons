@@ -141,4 +141,5 @@ def test_calculate_accuracies():
     result = calculate_accuracies(data, Fields.TRAVEL_TIME)
 
     assert len(result) == 4
-    assert list(result["Accuracy %"].round()) == [99, 97, 93, 90]
+    assert list(result["Accuracy Score"].round()) == [100.0, 97.0, 94.0, 94.0]
+    assert list(result["Relative Time"].round()) == [100.0, 101.0, 103.0, 97.0]
