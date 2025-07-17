@@ -24,6 +24,7 @@ dependencies = [
     "aiohttp",
     "aiolimiter",
     "pandas",
+    "numpy",
     "pytz",
     "traveltimepy>=4.0.0",
     "google-maps-routing",

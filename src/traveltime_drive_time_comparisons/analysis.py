@@ -2,12 +2,14 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 import pandas as pd
+import numpy as np
 
 from pandas import DataFrame
 
 from traveltime_drive_time_comparisons.common import (
-    ACCURACY_COLUMN,
     PROVIDER_COLUMN,
+    ACCURARY_SCORE_COLUMN,
+    RELATIVE_TIME_COLUMN,
     Fields,
     get_capitalized_provider_name,
 )
@@ -165,25 +167,51 @@ def _get_provider_comparison(
 def calculate_accuracies(data: pd.DataFrame, columns: Dict[str, str]) -> pd.DataFrame:
     # only calculate providers that are present in the current search
     existing_fields = {k: v for k, v in columns.items() if v in data.columns}
-    providers_data = data[list(existing_fields.values())]
+
+    google_key = next((key for key in existing_fields if "google" in key.lower()), None)
+
+    if not google_key:
+        print("Warning: Google data not found. Cannot generate baseline summary.")
+        return pd.DataFrame()
+
+    baseline_col = existing_fields[google_key]
 
     results = []
-    for row in providers_data.itertuples():
-        all_values = list(row)[1:]
-        comparisons = [
-            _get_provider_comparison(
-                provider_name, provider_value, all_values, provider_index
-            )
-            for provider_index, (provider_name, provider_value) in enumerate(
-                zip(existing_fields.keys(), all_values)
-            )
-        ]
-        results.extend(comparisons)
 
-    df = pd.DataFrame.from_records(results, columns=[PROVIDER_COLUMN, ACCURACY_COLUMN])
-    return (
-        df.groupby(PROVIDER_COLUMN)[ACCURACY_COLUMN]
-        .mean()
-        .reset_index()
-        .sort_values(ACCURACY_COLUMN, ascending=False, ignore_index=True)
-    )
+    for provider_key, provider_col in existing_fields.items():
+        pretty_name = get_capitalized_provider_name(provider_key)
+
+        # Handle Google as the baseline case.
+        if provider_key == google_key:
+            accuracy_score = 100.0
+            speed_index = 100.0
+        # Handle all other providers.
+        else:
+            safe_baseline = data[baseline_col].replace(0, np.nan)
+            percentage_error = (
+                (data[provider_col] - data[baseline_col]) / safe_baseline
+            ) * 100
+
+            # Transform the original metrics into the new scores
+            mean_abs_error = np.mean(np.abs(percentage_error))
+            mean_bias = np.mean(percentage_error)
+
+            accuracy_score = 100 - mean_abs_error
+            speed_index = 100 + mean_bias
+
+        results.append(
+            {
+                PROVIDER_COLUMN: pretty_name,
+                ACCURARY_SCORE_COLUMN: round(accuracy_score, 2),
+                RELATIVE_TIME_COLUMN: round(speed_index, 2),
+            }
+        )
+
+    if not results:
+        return pd.DataFrame()
+
+    summary_df = pd.DataFrame(results)
+    # Sort by the new Accuracy Score, with higher values being better (ascending=False)
+    return summary_df.sort_values(
+        by=ACCURARY_SCORE_COLUMN, ascending=False
+    ).reset_index(drop=True)
