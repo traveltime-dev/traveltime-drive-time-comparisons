@@ -46,11 +46,12 @@ class MapboxRequestHandler(BaseRequestHandler):
             "exclude": "ferry",  # by default I think it includes ferries, but for our API we use just driving, without ferries
         }
         try:
-            async with aiohttp.ClientSession(
-                timeout=self.default_timeout
-            ) as session, session.get(
-                f"{self.routing_url}/{transport_mode}/{route}", params=params
-            ) as response:
+            async with (
+                aiohttp.ClientSession(timeout=self.default_timeout) as session,
+                session.get(
+                    f"{self.routing_url}/{transport_mode}/{route}", params=params
+                ) as response,
+            ):
                 data = await response.json()
                 if response.status == 200:
                     duration = data["routes"][0]["duration"]

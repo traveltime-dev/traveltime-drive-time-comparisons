@@ -53,9 +53,10 @@ class ValhallaRequestHandler(BaseRequestHandler):
         }
 
         try:
-            async with aiohttp.ClientSession(
-                timeout=self.default_timeout
-            ) as session, session.post(self.routing_url, json=request_body) as response:
+            async with (
+                aiohttp.ClientSession(timeout=self.default_timeout) as session,
+                session.post(self.routing_url, json=request_body) as response,
+            ):
                 data = await response.json()
 
                 if response.status == 200:

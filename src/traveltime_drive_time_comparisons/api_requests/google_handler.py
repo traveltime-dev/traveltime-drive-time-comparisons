@@ -50,9 +50,10 @@ class GoogleRequestHandler(BaseRequestHandler):
             "key": self.api_key,
         }
         try:
-            async with aiohttp.ClientSession(
-                timeout=self.default_timeout
-            ) as session, session.get(self.routing_url, params=params) as response:
+            async with (
+                aiohttp.ClientSession(timeout=self.default_timeout) as session,
+                session.get(self.routing_url, params=params) as response,
+            ):
                 data = await response.json()
                 status = data["status"]
 

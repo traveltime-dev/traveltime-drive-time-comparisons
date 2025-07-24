@@ -45,11 +45,12 @@ class OpenRoutesRequestHandler(BaseRequestHandler):
             "end": f"{destination.lng},{destination.lat}",
         }
         try:
-            async with aiohttp.ClientSession(
-                timeout=self.default_timeout
-            ) as session, session.get(
-                f"{self.routing_url}/{transport_mode}", params=params
-            ) as response:
+            async with (
+                aiohttp.ClientSession(timeout=self.default_timeout) as session,
+                session.get(
+                    f"{self.routing_url}/{transport_mode}", params=params
+                ) as response,
+            ):
                 data = await response.json()
                 if response.status == 200:
                     duration = data["features"][0]["properties"]["segments"][0][

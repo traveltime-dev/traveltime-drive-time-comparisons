@@ -46,11 +46,12 @@ class OSRMRequestHandler(BaseRequestHandler):
         }
 
         try:
-            async with aiohttp.ClientSession(
-                timeout=self.default_timeout
-            ) as session, session.get(
-                f"{self.routing_url}{transport_mode}/{route}", params=params
-            ) as response:
+            async with (
+                aiohttp.ClientSession(timeout=self.default_timeout) as session,
+                session.get(
+                    f"{self.routing_url}{transport_mode}/{route}", params=params
+                ) as response,
+            ):
                 data = await response.json()
                 if response.status == 200:
                     first_route = data["routes"][0]

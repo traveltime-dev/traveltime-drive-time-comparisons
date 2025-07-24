@@ -44,11 +44,12 @@ class TomTomRequestHandler(BaseRequestHandler):
             "travelMode": get_tomtom_specific_mode(mode),
         }
         try:
-            async with aiohttp.ClientSession(
-                timeout=self.default_timeout
-            ) as session, session.get(
-                f"{self.routing_url}{route}/json", params=params
-            ) as response:
+            async with (
+                aiohttp.ClientSession(timeout=self.default_timeout) as session,
+                session.get(
+                    f"{self.routing_url}{route}/json", params=params
+                ) as response,
+            ):
                 data = await response.json()
                 if response.status == 200:
                     travel_time = data["routes"][0]["summary"]["travelTimeInSeconds"]
