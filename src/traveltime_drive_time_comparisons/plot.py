@@ -57,7 +57,7 @@ def plot_accuracy_comparison(
     min_val = min(accuracy_df[ACCURARY_SCORE_COLUMN])
     max_val = max(accuracy_df[ACCURARY_SCORE_COLUMN])
     range_size = max_val - min_val
-    
+
     # Add 10% padding above and below the data range
     padding = max(range_size * 0.1, 5)  # At least 5% padding
     ax.set_ylim(max(0, min_val - padding), max_val + padding)
@@ -105,16 +105,16 @@ def plot_relative_time_comparison(
     min_val = min(accuracy_df[RELATIVE_TIME_COLUMN])
     max_val = max(accuracy_df[RELATIVE_TIME_COLUMN])
     range_size = max_val - min_val
-    
+
     # Add 10% padding above and below the data range
     padding = max(range_size * 0.1, 8)  # At least 8% padding for relative time
-    
+
     # Ensure 100% baseline is visible if it's close to the data range
     y_min = max(0, min_val - padding)
     y_max = max_val + padding
     if min_val > 95 and y_min > 95:  # If all values are close to 100%, include 100%
         y_min = 95
-    
+
     ax.set_ylim(y_min, y_max)
 
     plt.tight_layout()
