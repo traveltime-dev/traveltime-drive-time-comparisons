@@ -37,6 +37,8 @@ jobs:
           flake8  --max-line-length=127
       - name: Formatting check with black
         run: |
+          echo "--- Checking black version ---"
+          black --version
           black . --check --diff
       - name: Type check with mypy
         run: |
