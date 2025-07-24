@@ -1,7 +1,7 @@
 # TravelTime Drive Time Comparisons tool
 
 This tool compares the travel times obtained from [TravelTime Routes API](https://docs.traveltime.com/api/reference/routes),
-[Google Maps Directions API](https://developers.google.com/maps/documentation/directions/get-directions),
+[Google Maps Directions API](https://developers.google.com/maps/documentation/directions/get-directions),a
 [TomTom Routing API](https://developer.tomtom.com/routing-api/documentation/tomtom-maps/routing-service),
 [HERE Routing API](https://www.here.com/docs/bundle/routing-api-v8-api-reference),
 [Mapbox Directions API](https://docs.mapbox.com/api/navigation/directions/),
