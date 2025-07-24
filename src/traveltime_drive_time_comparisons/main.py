@@ -86,14 +86,15 @@ async def run():
 
         run_analysis(filtered_travel_times_df, args.output, 0.90, providers)
 
-        if not accuracy_df.empty:
-            plot_accuracy_comparison(accuracy_df, "Accuracy Score (Google = 100)")
-            plot_relative_time_comparison(
-                accuracy_df, "Relative Time (Google = 100)"
-            )
-            plt.show()
-        else:
-            logger.info("No data available for plotting")
+        if not args.skip_plotting:
+            if not accuracy_df.empty:
+                plot_accuracy_comparison(accuracy_df, "Accuracy Score (Google = 100)")
+                plot_relative_time_comparison(
+                    accuracy_df, "Relative Time (Google = 100)"
+                )
+                plt.show()
+            else:
+                logger.info("No data available for plotting")
 
 
 def main():

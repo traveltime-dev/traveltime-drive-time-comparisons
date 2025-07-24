@@ -87,6 +87,13 @@ def parse_args():
             "Input file must conform to the output file format."
         ),
     )
+    parser.add_argument(
+        "--skip-plotting",
+        action=argparse.BooleanOptionalAction,
+        help=(
+            "If set, graphs of the final summary will not be shown."
+        ),
+    )
     return parser.parse_args()
 
 
