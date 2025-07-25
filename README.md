@@ -84,6 +84,8 @@ Required arguments:
 
 Optional arguments:
 - `--config [Config file path]`: Path to the config file. Default - ./config.json
+- `--skip-data-gathering`: If set, reads already gathered data from input file and skips data gathering. Input file must conform to the output file format.
+- `--skip-plotting`: If set, graphs of the final summary will not be shown.
 
 Example:
 

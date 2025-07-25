@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from traveltime_drive_time_comparisons import collect
 from traveltime_drive_time_comparisons import config
@@ -12,6 +13,10 @@ from traveltime_drive_time_comparisons.analysis import (
 from traveltime_drive_time_comparisons.config import parse_config
 from traveltime_drive_time_comparisons.collect import Fields
 from traveltime_drive_time_comparisons.api_requests import factory
+from traveltime_drive_time_comparisons.plot import (
+    plot_accuracy_comparison,
+    plot_relative_time_comparison,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -74,14 +79,22 @@ async def run():
                 f"Skipped {skipped_rows} rows ({100 * skipped_rows / all_rows:.2f}%)"
             )
 
+        accuracy_df = calculate_accuracies(filtered_travel_times_df, Fields.TRAVEL_TIME)
         logger.info(
-            "Baseline summary, comparing to Google: \n"
-            + calculate_accuracies(
-                filtered_travel_times_df, Fields.TRAVEL_TIME
-            ).to_string()
+            "Baseline summary, comparing to Google: \n" + accuracy_df.to_string()
         )
 
         run_analysis(filtered_travel_times_df, args.output, 0.90, providers)
+
+        if not args.skip_plotting:
+            if not accuracy_df.empty:
+                plot_accuracy_comparison(accuracy_df, "Accuracy Score (Google = 100)")
+                plot_relative_time_comparison(
+                    accuracy_df, "Relative Time (Google = 100)"
+                )
+                plt.show()
+            else:
+                logger.info("No data available for plotting")
 
 
 def main():
