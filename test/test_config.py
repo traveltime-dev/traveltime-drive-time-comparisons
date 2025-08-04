@@ -1,5 +1,3 @@
-import pytest
-
 from traveltime_drive_time_comparisons.config import (
     Provider,
     Providers,
