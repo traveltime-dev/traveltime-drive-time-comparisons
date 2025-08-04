@@ -81,12 +81,16 @@ def test_json_config_parse_all_disabled_providers():
         }
     """
 
-    with pytest.raises(ValueError) as excinfo:
-        _ = parse_json_to_providers(json)
+    providers = parse_json_to_providers(json)
 
-    assert (
-        str(excinfo.value)
-        == "There should be at least one enabled API provider that's not TravelTime."
+    assert providers == Providers(
+        base=Provider(
+            name="traveltime",
+            max_rpm=60,
+            credentials=Credentials(app_id="<your-app-id>", api_key="<your-api-key>"),
+            api_endpoint=None,
+        ),
+        competitors=[],
     )
 
 
@@ -102,10 +106,14 @@ def test_json_config_parse_empty_providers():
         }
     """
 
-    with pytest.raises(ValueError) as excinfo:
-        _ = parse_json_to_providers(json)
+    providers = parse_json_to_providers(json)
 
-    assert (
-        str(excinfo.value)
-        == "There should be at least one enabled API provider that's not TravelTime."
+    assert providers == Providers(
+        base=Provider(
+            name="traveltime",
+            max_rpm=60,
+            credentials=Credentials(app_id="<your-app-id>", api_key="<your-api-key>"),
+            api_endpoint=None,
+        ),
+        competitors=[],
     )
