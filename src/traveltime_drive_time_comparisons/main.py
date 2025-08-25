@@ -84,6 +84,10 @@ async def run():
             "Baseline summary, comparing to Google: \n" + accuracy_df.to_string()
         )
 
+        # If accuracy output path is defined, write to it
+        if args.accuracy_output:
+            accuracy_df.to_csv(args.accuracy_output, index=False)
+
         run_analysis(filtered_travel_times_df, args.output, 0.90, providers)
 
         if not args.skip_plotting:

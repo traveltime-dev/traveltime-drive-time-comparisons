@@ -62,6 +62,9 @@ def parse_args():
     )
     parser.add_argument("--input", required=True, help="Input CSV file path")
     parser.add_argument("--output", required=True, help="Output CSV file path")
+    parser.add_argument(
+        "--accuracy-output", required=False, help="Accuracy table output CSV file path"
+    )
     parser.add_argument("--date", required=True, help="Date (YYYY-MM-DD)")
     parser.add_argument(
         "--departure-times",
