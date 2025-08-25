@@ -84,6 +84,8 @@ Required arguments:
 
 Optional arguments:
 - `--config [Config file path]`: Path to the config file. Default - ./config.json
+- `--accuracy-output [Output CSV file path]`: Path to the output file for the accuracy table. If not defined,
+    the table will only be printed to the console.
 - `--skip-data-gathering`: If set, reads already gathered data from input file and skips data gathering. Input file must conform to the output file format.
 - `--skip-plotting`: If set, graphs of the final summary will not be shown.
 
