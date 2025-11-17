@@ -69,12 +69,9 @@ def format_results_for_csv(results_with_differences: DataFrame) -> DataFrame:
     ]
     for col in relative_error_columns:
         # Replace inf with NaN, round to int, then convert to nullable Int64
-        formatted_results[col] = pd.array(
-            formatted_results[col]
-            .replace([float("inf"), float("-inf")], float("nan"))
-            .round(),
-            dtype="Int64",
-        )
+        formatted_results[col] = formatted_results[col].replace(
+            [float("inf"), float("-inf")], float("nan")
+        ).round().astype("Int64")
 
     return formatted_results
 
