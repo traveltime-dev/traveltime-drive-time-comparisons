@@ -146,3 +146,29 @@ def test_calculate_accuracies():
     assert len(result) == 4
     assert list(result["Accuracy Score"].round()) == [100.0, 97.0, 94.0, 94.0]
     assert list(result["Relative Time"].round()) == [100.0, 101.0, 103.0, 97.0]
+
+
+def test_format_results_for_csv_handles_nan_in_relative_errors():
+    """Test that format_results_for_csv can handle NaN values from division by zero"""
+    from traveltime_drive_time_comparisons.analysis import format_results_for_csv
+    import numpy as np
+
+    # Create a DataFrame with NaN in relative error columns (from division by zero)
+    data = {
+        Fields.TRAVEL_TIME[GOOGLE_API]: [0, 200, 300],
+        Fields.TRAVEL_TIME[TRAVELTIME_API]: [90, 210, 290],
+        "error_percentage_traveltime_to_google": [np.nan, 5.0, 10.0 / 3],
+        "absolute_error_traveltime_to_google": [90, 10, 10],
+    }
+    df = pd.DataFrame(data)
+
+    # This should not raise an exception
+    result_df = format_results_for_csv(df)
+
+    # Check that NaN is preserved as <NA> in Int64 column
+    assert pd.isna(result_df["error_percentage_traveltime_to_google"].iloc[0])
+    # Check that float values are converted to int (truncated)
+    assert result_df["error_percentage_traveltime_to_google"].iloc[1] == 5
+    assert result_df["error_percentage_traveltime_to_google"].iloc[2] == 3
+    # Check that absolute_error columns are dropped
+    assert "absolute_error_traveltime_to_google" not in result_df.columns
