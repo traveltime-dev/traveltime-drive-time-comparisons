@@ -62,7 +62,10 @@ def test_calculate_differences_survives_division_by_zero():
     result_df = calculate_differences(df, PROVIDERS.base, PROVIDERS)
 
     assert result_df[ABSOLUTE_ERROR_GOOGLE].tolist() == [90, 10, 10]
-    assert result_df[RELATIVE_ERROR_GOOGLE].tolist() == [float("inf"), 5.0, 10.0 / 3]
+    relative_errors = result_df[RELATIVE_ERROR_GOOGLE].tolist()
+    assert pd.isna(relative_errors[0])  # NaN when dividing by zero
+    assert relative_errors[1] == 5.0
+    assert relative_errors[2] == 10.0 / 3
 
 
 odd_data = {

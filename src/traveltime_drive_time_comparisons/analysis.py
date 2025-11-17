@@ -68,7 +68,7 @@ def format_results_for_csv(results_with_differences: DataFrame) -> DataFrame:
         col for col in formatted_results.columns if "error_percentage" in col
     ]
     for col in relative_error_columns:
-        formatted_results[col] = formatted_results[col].astype(int)
+        formatted_results[col] = formatted_results[col].astype("Int64")
 
     return formatted_results
 
@@ -113,9 +113,10 @@ def calculate_differences(
                 - results[Fields.TRAVEL_TIME[target_name]]
             )
 
+            denominator = results_with_differences[Fields.TRAVEL_TIME[name]]
             results_with_differences[relative_error_col] = (
                 results_with_differences[absolute_error_col]
-                / results_with_differences[Fields.TRAVEL_TIME[name]]
+                / denominator.replace(0, float("nan"))
                 * 100
             )
 
@@ -134,9 +135,12 @@ def calculate_quantiles(
     quantile_relative_error = results_with_differences[
         relative_error(target_name, api_provider_name)
     ].quantile(quantile, "higher")
-    return QuantileErrorResult(
-        int(quantile_absolute_error), int(quantile_relative_error)
-    )
+
+    # Handle NaN quantiles (when all values are NaN)
+    abs_err = int(quantile_absolute_error) if pd.notna(quantile_absolute_error) else 0
+    rel_err = int(quantile_relative_error) if pd.notna(quantile_relative_error) else 0
+
+    return QuantileErrorResult(abs_err, rel_err)
 
 
 def _calculate_provider_accuracy(
