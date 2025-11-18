@@ -13,6 +13,7 @@ from traveltime_drive_time_comparisons.analysis import (
 from traveltime_drive_time_comparisons.config import parse_config
 from traveltime_drive_time_comparisons.collect import Fields
 from traveltime_drive_time_comparisons.api_requests import factory
+from traveltime_drive_time_comparisons.outlier_detection import OutlierConfig
 from traveltime_drive_time_comparisons.plot import (
     plot_accuracy_comparison,
     plot_relative_time_comparison,
@@ -79,7 +80,13 @@ async def run():
                 f"Skipped {skipped_rows} rows ({100 * skipped_rows / all_rows:.2f}%)"
             )
 
-        accuracy_df = calculate_accuracies(filtered_travel_times_df, Fields.TRAVEL_TIME)
+        outlier_config = OutlierConfig(
+            enabled=not args.skip_outlier_filtering,
+            ratio_threshold=args.outlier_threshold,
+        )
+        accuracy_df = calculate_accuracies(
+            filtered_travel_times_df, Fields.TRAVEL_TIME, outlier_config
+        )
         logger.info(
             "Baseline summary, comparing to Google: \n" + accuracy_df.to_string()
         )

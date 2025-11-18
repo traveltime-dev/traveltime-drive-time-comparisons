@@ -88,6 +88,8 @@ Optional arguments:
     the table will only be printed to the console.
 - `--skip-data-gathering`: If set, reads already gathered data from input file and skips data gathering. Input file must conform to the output file format.
 - `--skip-plotting`: If set, graphs of the final summary will not be shown.
+- `--outlier-threshold`: The ratio threshold for outlier filtering. Default is 3.0.
+- `--skip-outlier-filtering`: If set, disables outlier detection entirely.
 
 Example:
 
@@ -136,6 +138,20 @@ It also contains more detailed comparisons with each API
 2025-06-11 13:23:36 | INFO | 	Mean relative error compared to Google API: 24.60%
 2025-06-11 13:23:36 | INFO | 	90% of TomTom results differ from Google API by less than 29%
 ```
+
+### Outlier Detection
+The tool automatically detects and excludes outliers from accuracy calculations using a ratio-based method. Outliers are rows where one provider's result differs dramatically from the median of all providers (default: 3x or more different).
+
+When outliers are detected, you'll see:
+
+```
+2025-11-18 12:03:08 | INFO | Detected 1 outlier rows in accuracy calculation:
+2025-11-18 12:03:08 | INFO |   Row 1 (not counting header): Google = 5000s (median: 1000s, ratio: 5.0x)
+2025-11-18 12:03:08 | INFO | Filtered 1 outlier rows from accuracy calculation
+2025-11-18 12:03:08 | INFO | Using 4 rows for accuracy metrics
+```
+
+Outliers are logged but still included in the output CSV file.
 
 ## File output
 The output file will contain the `origin` and `destination` columns from input file, with some additional columns: 
