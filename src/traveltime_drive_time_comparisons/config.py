@@ -95,6 +95,19 @@ def parse_args():
         action=argparse.BooleanOptionalAction,
         help=("If set, graphs of the final summary will not be shown."),
     )
+
+    parser.add_argument(
+        "--skip-outlier-filtering",
+        action=argparse.BooleanOptionalAction,
+        help="Skip outlier detection and filtering",
+    )
+    parser.add_argument(
+        "--outlier-threshold",
+        type=float,
+        default=3.0,
+        help="Ratio threshold for outlier detection (default: 3.0)",
+    )
+
     return parser.parse_args()
 
 

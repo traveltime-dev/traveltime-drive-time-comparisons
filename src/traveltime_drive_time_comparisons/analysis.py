@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 import pandas as pd
 import numpy as np
 
@@ -12,6 +12,12 @@ from traveltime_drive_time_comparisons.common import (
     RELATIVE_TIME_COLUMN,
     Fields,
     get_capitalized_provider_name,
+)
+from traveltime_drive_time_comparisons.outlier_detection import (
+    OutlierConfig,
+    detect_outliers,
+    filter_outliers,
+    log_outliers,
 )
 from traveltime_drive_time_comparisons.config import Provider, Providers
 
@@ -174,7 +180,11 @@ def _get_provider_comparison(
     )
 
 
-def calculate_accuracies(data: pd.DataFrame, columns: Dict[str, str]) -> pd.DataFrame:
+def calculate_accuracies(
+    data: pd.DataFrame,
+    columns: Dict[str, str],
+    outlier_config: Optional[OutlierConfig] = None,
+) -> pd.DataFrame:
     # only calculate providers that are present in the current search
     existing_fields = {k: v for k, v in columns.items() if v in data.columns}
 
@@ -185,6 +195,18 @@ def calculate_accuracies(data: pd.DataFrame, columns: Dict[str, str]) -> pd.Data
         return pd.DataFrame()
 
     baseline_col = existing_fields[google_key]
+
+    # Detect outliers using IQR method
+    outliers_df = detect_outliers(data, columns, outlier_config)
+    log_outliers(outliers_df, "accuracy calculation")
+
+    # Filter outliers for accuracy calculation
+    filtered_data = filter_outliers(data, outliers_df)
+    if len(filtered_data) < len(data):
+        logging.info(
+            f"Filtered {len(data) - len(filtered_data)} outlier rows from accuracy calculation"
+        )
+        logging.info(f"Using {len(filtered_data)} rows for accuracy metrics")
 
     results = []
 
@@ -197,9 +219,10 @@ def calculate_accuracies(data: pd.DataFrame, columns: Dict[str, str]) -> pd.Data
             speed_index = 100.0
         # Handle all other providers.
         else:
-            safe_baseline = data[baseline_col].replace(0, np.nan)
+            safe_baseline = filtered_data[baseline_col].replace(0, np.nan)
             percentage_error = (
-                (data[provider_col] - data[baseline_col]) / safe_baseline
+                (filtered_data[provider_col] - filtered_data[baseline_col])
+                / safe_baseline
             ) * 100
 
             # Transform the original metrics into the new scores
