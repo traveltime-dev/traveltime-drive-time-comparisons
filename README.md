@@ -120,7 +120,7 @@ Examples:
 4      Mapbox           57.00         135.66
 ```
 
-It also contains more detailed comparisons with each API 
+It also contains more detailed comparisons with each API (not affected by outlier detection)
 ```
 2025-06-11 13:23:36 | INFO | Comparing TravelTime to other providers:
 2025-06-11 13:23:36 | INFO | 	Mean relative error compared to Google API: 12.91%
