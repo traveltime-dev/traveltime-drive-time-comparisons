@@ -279,7 +279,7 @@ class TestEdgeCases:
         """Outlier detection should work with small base values."""
         data = pd.DataFrame(
             {
-                Fields.TRAVEL_TIME[GOOGLE_API]: [3, 1500, 5],
+                Fields.TRAVEL_TIME[GOOGLE_API]: [3, 15, 5],
                 Fields.TRAVEL_TIME[TRAVELTIME_API]: [5, 3, 3],
                 Fields.TRAVEL_TIME[TOMTOM_API]: [4, 5, 4],
                 Fields.TRAVEL_TIME[HERE_API]: [3, 4, 3],
@@ -292,7 +292,7 @@ class TestEdgeCases:
 
         assert len(outliers) == 1
         assert outliers.iloc[0]["row_index"] == 1
-        assert outliers.iloc[0]["outlier_value"] == 1500
+        assert outliers.iloc[0]["outlier_value"] == 15
 
     def test_nan_values_ignored(self):
         """NaN values should be ignored in outlier detection."""
