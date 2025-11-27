@@ -1,9 +1,9 @@
 import logging
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
-import pandas as pd
-import numpy as np
 
+import numpy as np
+import pandas as pd
 from pandas import DataFrame
 
 from traveltime_drive_time_comparisons.common import (
@@ -14,6 +14,8 @@ from traveltime_drive_time_comparisons.common import (
     get_capitalized_provider_name,
 )
 from traveltime_drive_time_comparisons.config import Provider, Providers
+
+CASE_CATEGORY_COLUMN = Fields.CASE_CATEGORY
 
 
 def absolute_error(target: str, api_provider: str) -> str:
@@ -75,6 +77,11 @@ def format_results_for_csv(results_with_differences: DataFrame) -> DataFrame:
             .round()
             .astype("Int64")
         )
+
+    if CASE_CATEGORY_COLUMN in formatted_results.columns:
+        cols = [c for c in formatted_results.columns if c != CASE_CATEGORY_COLUMN]
+        cols.append(CASE_CATEGORY_COLUMN)
+        formatted_results = formatted_results[cols]
 
     return formatted_results
 

@@ -18,6 +18,7 @@ from traveltime_drive_time_comparisons.config import Mode
 from traveltime_drive_time_comparisons.api_requests.base_handler import (
     BaseRequestHandler,
     RequestResult,
+    SnappedCoordinates,
     create_async_limiter,
 )
 
@@ -62,7 +63,7 @@ class TravelTimeRequestHandler(BaseRequestHandler):
                             arrival_location_ids=[self.DESTINATION_ID],
                             transportation=get_traveltime_specific_mode(mode),
                             departure_time=departure_time,
-                            properties=[Property.TRAVEL_TIME],
+                            properties=[Property.TRAVEL_TIME, Property.ROUTE],
                             snapping=Snapping(
                                 penalty=SnappingPenalty.DISABLED,
                                 accept_roads=SnappingAcceptRoads.BOTH_DRIVABLE_AND_WALKABLE,
@@ -83,7 +84,33 @@ class TravelTimeRequestHandler(BaseRequestHandler):
             return RequestResult(None)
 
         properties = response.results[0].locations[0].properties[0]
-        return RequestResult(travel_time=properties.travel_time)
+
+        snapped = None
+        distance = None
+        route = properties.route
+        if route and route.parts:
+            all_coords = []
+            for part in route.parts:
+                if part.coords:
+                    all_coords.extend(part.coords)
+            if len(all_coords) >= 2:
+                first_coord = all_coords[0]
+                last_coord = all_coords[-1]
+                snapped = SnappedCoordinates(
+                    origin_lat=first_coord.lat,
+                    origin_lng=first_coord.lng,
+                    destination_lat=last_coord.lat,
+                    destination_lng=last_coord.lng,
+                )
+            distance = sum(
+                part.distance for part in route.parts if part.distance is not None
+            )
+
+        return RequestResult(
+            travel_time=properties.travel_time,
+            distance=distance,
+            snapped_coords=snapped,
+        )
 
 
 class RouteNotFoundError(Exception):

@@ -29,6 +29,34 @@ class Fields:
         VALHALLA_API: "valhalla_travel_time",
         TRAVELTIME_API: "tt_travel_time",
     }
+    SNAPPED_ORIGIN = {
+        GOOGLE_API: "google_snapped_origin",
+        TOMTOM_API: "tomtom_snapped_origin",
+        HERE_API: "here_snapped_origin",
+        OSRM_API: "osrm_snapped_origin",
+        MAPBOX_API: "mapbox_snapped_origin",
+        VALHALLA_API: "valhalla_snapped_origin",
+        TRAVELTIME_API: "tt_snapped_origin",
+    }
+    SNAPPED_DESTINATION = {
+        GOOGLE_API: "google_snapped_destination",
+        TOMTOM_API: "tomtom_snapped_destination",
+        HERE_API: "here_snapped_destination",
+        OSRM_API: "osrm_snapped_destination",
+        MAPBOX_API: "mapbox_snapped_destination",
+        VALHALLA_API: "valhalla_snapped_destination",
+        TRAVELTIME_API: "tt_snapped_destination",
+    }
+    DISTANCE = {
+        GOOGLE_API: "google_distance",
+        TOMTOM_API: "tomtom_distance",
+        HERE_API: "here_distance",
+        OSRM_API: "osrm_distance",
+        MAPBOX_API: "mapbox_distance",
+        VALHALLA_API: "valhalla_distance",
+        TRAVELTIME_API: "tt_distance",
+    }
+    CASE_CATEGORY = "case_category"
 
 
 def get_capitalized_provider_name(provider: str) -> str:

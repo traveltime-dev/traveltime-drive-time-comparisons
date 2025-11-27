@@ -8,6 +8,7 @@ from traveltime_drive_time_comparisons.config import Mode
 from traveltime_drive_time_comparisons.api_requests.base_handler import (
     BaseRequestHandler,
     RequestResult,
+    SnappedCoordinates,
     create_async_limiter,
 )
 
@@ -59,11 +60,14 @@ class HereRequestHandler(BaseRequestHandler):
                             "No route found between origin and destination."
                         )
 
+                    sections = first_route["sections"]
                     # I think for a simple routing request, there should only be one section. But just in case
                     # I'm taking the sum of all sections
                     total_duration = sum(
-                        section["summary"]["duration"]
-                        for section in first_route["sections"]
+                        section["summary"]["duration"] for section in sections
+                    )
+                    total_distance = sum(
+                        section["summary"]["length"] for section in sections
                     )
 
                     # For some reason, HERE provider returns 0 duration, 0 length
@@ -74,7 +78,25 @@ class HereRequestHandler(BaseRequestHandler):
                     if total_duration == 0:
                         return RequestResult(None)
 
-                    return RequestResult(travel_time=total_duration)
+                    snapped = None
+                    if sections:
+                        first_section = sections[0]
+                        last_section = sections[-1]
+                        departure = first_section.get("departure", {}).get("place", {})
+                        arrival = last_section.get("arrival", {}).get("place", {})
+                        if departure and arrival:
+                            snapped = SnappedCoordinates(
+                                origin_lat=departure.get("location", {}).get("lat"),
+                                origin_lng=departure.get("location", {}).get("lng"),
+                                destination_lat=arrival.get("location", {}).get("lat"),
+                                destination_lng=arrival.get("location", {}).get("lng"),
+                            )
+
+                    return RequestResult(
+                        travel_time=total_duration,
+                        distance=total_distance,
+                        snapped_coords=snapped,
+                    )
                 else:
                     error_message = data.get("detailedError", "")
                     logger.error(

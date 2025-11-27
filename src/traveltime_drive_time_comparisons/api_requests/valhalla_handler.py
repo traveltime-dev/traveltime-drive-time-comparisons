@@ -8,6 +8,7 @@ from traveltime_drive_time_comparisons.config import Mode
 from traveltime_drive_time_comparisons.api_requests.base_handler import (
     BaseRequestHandler,
     RequestResult,
+    SnappedCoordinates,
     create_async_limiter,
 )
 
@@ -71,8 +72,25 @@ class ValhallaRequestHandler(BaseRequestHandler):
                         )
 
                     total_duration = trip["summary"]["time"]
+                    total_distance = int(trip["summary"]["length"] * 1000)
 
-                    return RequestResult(travel_time=int(total_duration))
+                    snapped = None
+                    locations = trip.get("locations", [])
+                    if len(locations) >= 2:
+                        origin_loc = locations[0]
+                        dest_loc = locations[-1]
+                        snapped = SnappedCoordinates(
+                            origin_lat=origin_loc.get("lat"),
+                            origin_lng=origin_loc.get("lon"),
+                            destination_lat=dest_loc.get("lat"),
+                            destination_lng=dest_loc.get("lon"),
+                        )
+
+                    return RequestResult(
+                        travel_time=int(total_duration),
+                        distance=total_distance,
+                        snapped_coords=snapped,
+                    )
                 else:
                     error_message = data.get("error", "Unknown error")
                     logger.error(

@@ -17,6 +17,10 @@ from traveltime_drive_time_comparisons.plot import (
     plot_accuracy_comparison,
     plot_relative_time_comparison,
 )
+from traveltime_drive_time_comparisons.snapping import (
+    detect_bad_snapping,
+    log_snapping_summary,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,22 +49,21 @@ async def run():
 
     request_handlers = factory.initialize_request_handlers(providers)
     if args.skip_data_gathering:
-        travel_times_df = pd.read_csv(
-            args.input,
-            usecols=[
-                Fields.ORIGIN,
-                Fields.DESTINATION,
-                Fields.DEPARTURE_TIME,
-            ]  # base fields
-            + [Fields.TRAVEL_TIME[provider] for provider in all_provider_names],
-        )
+        travel_times_df = pd.read_csv(args.input)
     else:
         travel_times_df = await collect.collect_travel_times(
             args, csv, request_handlers, all_provider_names
         )
 
-    filtered_travel_times_df = travel_times_df.loc[
-        travel_times_df[
+    travel_times_df = detect_bad_snapping(travel_times_df, all_provider_names)
+    log_snapping_summary(travel_times_df)
+
+    clean_travel_times_df = travel_times_df[
+        travel_times_df[Fields.CASE_CATEGORY] == "clean"
+    ]
+
+    filtered_travel_times_df = clean_travel_times_df.loc[
+        clean_travel_times_df[
             [Fields.TRAVEL_TIME[provider] for provider in all_provider_names]
         ]
         .notna()
@@ -68,17 +71,24 @@ async def run():
         :,
     ]
 
+    all_rows = len(travel_times_df)
+    clean_rows = len(clean_travel_times_df)
     filtered_rows = len(filtered_travel_times_df)
+    bad_snap_rows = all_rows - clean_rows
+    missing_data_rows = clean_rows - filtered_rows
+
+    if bad_snap_rows > 0:
+        logger.info(
+            f"Excluded {bad_snap_rows} rows ({100 * bad_snap_rows / all_rows:.2f}%) due to bad snapping"
+        )
+    if missing_data_rows > 0:
+        logger.info(
+            f"Skipped {missing_data_rows} rows ({100 * missing_data_rows / all_rows:.2f}%) due to missing data"
+        )
+
     if filtered_rows == 0:
         logger.info("All rows from the input file were skipped. Exiting.")
     else:
-        all_rows = len(travel_times_df)
-        skipped_rows = all_rows - filtered_rows
-        if skipped_rows > 0:
-            logger.info(
-                f"Skipped {skipped_rows} rows ({100 * skipped_rows / all_rows:.2f}%)"
-            )
-
         accuracy_df = calculate_accuracies(filtered_travel_times_df, Fields.TRAVEL_TIME)
         logger.info(
             "Baseline summary, comparing to Google: \n" + accuracy_df.to_string()
@@ -88,7 +98,7 @@ async def run():
         if args.accuracy_output:
             accuracy_df.to_csv(args.accuracy_output, index=False)
 
-        run_analysis(filtered_travel_times_df, args.output, 0.90, providers)
+        run_analysis(travel_times_df, args.output, 0.90, providers)
 
         if not args.skip_plotting:
             if not accuracy_df.empty:
