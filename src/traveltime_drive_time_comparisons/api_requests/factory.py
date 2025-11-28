@@ -7,7 +7,6 @@ from traveltime_drive_time_comparisons.common import (
     OSRM_API,
     TRAVELTIME_API,
     GOOGLE_API,
-    OPENROUTES_API,
     VALHALLA_API,
 )
 from traveltime_drive_time_comparisons.config import Provider, Providers
@@ -28,9 +27,6 @@ from traveltime_drive_time_comparisons.api_requests.osrm_handler import (
 )
 from traveltime_drive_time_comparisons.api_requests.mapbox_handler import (
     MapboxRequestHandler,
-)
-from traveltime_drive_time_comparisons.api_requests.openroutes_handler import (
-    OpenRoutesRequestHandler,
 )
 from traveltime_drive_time_comparisons.api_requests.valhalla_handler import (
     ValhallaRequestHandler,
@@ -59,11 +55,6 @@ def initialize_request_handlers(providers: Providers) -> Dict[str, BaseRequestHa
     def create_osrm_handler(provider: Provider):
         return OSRMRequestHandler("", provider.max_rpm, provider.api_endpoint)
 
-    def create_openroutes_handler(provider: Provider):
-        return OpenRoutesRequestHandler(
-            provider.credentials.api_key, provider.max_rpm, provider.api_endpoint
-        )
-
     def create_mapbox_handler(provider: Provider):
         return MapboxRequestHandler(
             provider.credentials.api_key, provider.max_rpm, provider.api_endpoint
@@ -85,7 +76,6 @@ def initialize_request_handlers(providers: Providers) -> Dict[str, BaseRequestHa
         TOMTOM_API: create_tomtom_handler,
         HERE_API: create_here_handler,
         OSRM_API: create_osrm_handler,
-        OPENROUTES_API: create_openroutes_handler,
         MAPBOX_API: create_mapbox_handler,
         VALHALLA_API: create_valhalla_handler,
     }
