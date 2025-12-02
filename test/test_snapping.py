@@ -5,7 +5,12 @@ from traveltime_drive_time_comparisons.snapping import (
     haversine_distance,
     parse_coordinates,
 )
-from traveltime_drive_time_comparisons.common import Fields, GOOGLE_API, TRAVELTIME_API
+from traveltime_drive_time_comparisons.common import (
+    CaseCategory,
+    Fields,
+    GOOGLE_API,
+    TRAVELTIME_API,
+)
 
 
 class TestHaversineDistance:
@@ -70,7 +75,7 @@ class TestDetectBadSnapping:
             }
         )
         result = detect_bad_snapping(df, [GOOGLE_API])
-        assert result[Fields.CASE_CATEGORY].iloc[0] == "clean"
+        assert result[Fields.CASE_CATEGORY].iloc[0] == CaseCategory.CLEAN
 
     def test_bad_snap_origin_when_origin_exceeds_threshold(self):
         # Origin snapped >200m away
@@ -83,7 +88,7 @@ class TestDetectBadSnapping:
             }
         )
         result = detect_bad_snapping(df, [GOOGLE_API])
-        assert result[Fields.CASE_CATEGORY].iloc[0] == "bad_snap_origin"
+        assert result[Fields.CASE_CATEGORY].iloc[0] == CaseCategory.BAD_SNAP_ORIGIN
 
     def test_bad_snap_destination_when_destination_exceeds_threshold(self):
         # Destination snapped >200m away
@@ -96,7 +101,7 @@ class TestDetectBadSnapping:
             }
         )
         result = detect_bad_snapping(df, [GOOGLE_API])
-        assert result[Fields.CASE_CATEGORY].iloc[0] == "bad_snap_destination"
+        assert result[Fields.CASE_CATEGORY].iloc[0] == CaseCategory.BAD_SNAP_DESTINATION
 
     def test_bad_snap_both_when_both_exceed_threshold(self):
         df = pd.DataFrame(
@@ -108,7 +113,7 @@ class TestDetectBadSnapping:
             }
         )
         result = detect_bad_snapping(df, [GOOGLE_API])
-        assert result[Fields.CASE_CATEGORY].iloc[0] == "bad_snap_both"
+        assert result[Fields.CASE_CATEGORY].iloc[0] == CaseCategory.BAD_SNAP_BOTH
 
     def test_multiple_providers_any_bad_triggers_flag(self):
         # TravelTime snaps fine, but Google snaps badly
@@ -123,7 +128,7 @@ class TestDetectBadSnapping:
             }
         )
         result = detect_bad_snapping(df, [GOOGLE_API, TRAVELTIME_API])
-        assert result[Fields.CASE_CATEGORY].iloc[0] == "bad_snap_origin"
+        assert result[Fields.CASE_CATEGORY].iloc[0] == CaseCategory.BAD_SNAP_ORIGIN
 
     def test_missing_snapped_columns_treated_as_clean(self):
         df = pd.DataFrame(
@@ -133,7 +138,7 @@ class TestDetectBadSnapping:
             }
         )
         result = detect_bad_snapping(df, [GOOGLE_API])
-        assert result[Fields.CASE_CATEGORY].iloc[0] == "clean"
+        assert result[Fields.CASE_CATEGORY].iloc[0] == CaseCategory.CLEAN
 
     def test_nan_snapped_values_treated_as_clean(self):
         df = pd.DataFrame(
@@ -145,7 +150,7 @@ class TestDetectBadSnapping:
             }
         )
         result = detect_bad_snapping(df, [GOOGLE_API])
-        assert result[Fields.CASE_CATEGORY].iloc[0] == "clean"
+        assert result[Fields.CASE_CATEGORY].iloc[0] == CaseCategory.CLEAN
 
     def test_invalid_origin_coordinates_skipped(self):
         df = pd.DataFrame(
@@ -157,7 +162,7 @@ class TestDetectBadSnapping:
             }
         )
         result = detect_bad_snapping(df, [GOOGLE_API])
-        assert result[Fields.CASE_CATEGORY].iloc[0] == "clean"
+        assert result[Fields.CASE_CATEGORY].iloc[0] == CaseCategory.CLEAN
 
     def test_invalid_snapped_coordinates_skipped(self):
         df = pd.DataFrame(
@@ -169,7 +174,7 @@ class TestDetectBadSnapping:
             }
         )
         result = detect_bad_snapping(df, [GOOGLE_API])
-        assert result[Fields.CASE_CATEGORY].iloc[0] == "clean"
+        assert result[Fields.CASE_CATEGORY].iloc[0] == CaseCategory.CLEAN
 
     def test_multiple_rows(self):
         df = pd.DataFrame(
@@ -190,7 +195,7 @@ class TestDetectBadSnapping:
         )
         result = detect_bad_snapping(df, [GOOGLE_API])
         assert result[Fields.CASE_CATEGORY].tolist() == [
-            "clean",
-            "bad_snap_origin",
-            "bad_snap_destination",
+            CaseCategory.CLEAN,
+            CaseCategory.BAD_SNAP_ORIGIN,
+            CaseCategory.BAD_SNAP_DESTINATION,
         ]

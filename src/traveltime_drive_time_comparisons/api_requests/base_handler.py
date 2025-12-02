@@ -12,10 +12,10 @@ from traveltime_drive_time_comparisons.config import Mode
 
 @dataclass
 class SnappedCoordinates:
-    origin_lat: Optional[float]
-    origin_lng: Optional[float]
-    destination_lat: Optional[float]
-    destination_lng: Optional[float]
+    origin_lat: float
+    origin_lng: float
+    destination_lat: float
+    destination_lng: float
 
 
 @dataclass

@@ -16,6 +16,14 @@ RELATIVE_TIME_COLUMN = "Relative Time"
 
 
 @dataclass
+class CaseCategory:
+    CLEAN = "clean"
+    BAD_SNAP_ORIGIN = "bad_snap_origin"
+    BAD_SNAP_DESTINATION = "bad_snap_destination"
+    BAD_SNAP_BOTH = "bad_snap_both"
+
+
+@dataclass
 class Fields:
     ORIGIN = "origin"
     DESTINATION = "destination"

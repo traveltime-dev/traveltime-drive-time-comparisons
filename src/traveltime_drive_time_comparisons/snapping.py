@@ -5,7 +5,7 @@ from typing import List, Tuple
 import pandas as pd
 from pandas import DataFrame
 
-from traveltime_drive_time_comparisons.common import Fields
+from traveltime_drive_time_comparisons.common import CaseCategory, Fields
 
 
 logger = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ def detect_bad_snapping(
     - 'bad_snap_both': Both origin and destination have snapping issues
     """
     df = df.copy()
-    categories = ["clean"] * len(df)
+    categories = [CaseCategory.CLEAN] * len(df)
 
     for i, (idx, row) in enumerate(df.iterrows()):
         try:
@@ -95,11 +95,11 @@ def detect_bad_snapping(
                         pass
 
         if bad_origin and bad_destination:
-            categories[i] = "bad_snap_both"
+            categories[i] = CaseCategory.BAD_SNAP_BOTH
         elif bad_origin:
-            categories[i] = "bad_snap_origin"
+            categories[i] = CaseCategory.BAD_SNAP_ORIGIN
         elif bad_destination:
-            categories[i] = "bad_snap_destination"
+            categories[i] = CaseCategory.BAD_SNAP_DESTINATION
 
     df[Fields.CASE_CATEGORY] = categories
     return df
@@ -110,12 +110,16 @@ def log_snapping_summary(df: DataFrame) -> None:
     if total == 0:
         return
 
-    clean_count = (df[Fields.CASE_CATEGORY] == "clean").sum()
+    clean_count = (df[Fields.CASE_CATEGORY] == CaseCategory.CLEAN).sum()
     bad_snap_count = total - clean_count
 
     if bad_snap_count > 0:
         logger.info(f"Detected {bad_snap_count} routes with bad snapping issues")
-        for category in ["bad_snap_origin", "bad_snap_destination", "bad_snap_both"]:
+        for category in [
+            CaseCategory.BAD_SNAP_ORIGIN,
+            CaseCategory.BAD_SNAP_DESTINATION,
+            CaseCategory.BAD_SNAP_BOTH,
+        ]:
             count = (df[Fields.CASE_CATEGORY] == category).sum()
             if count > 0:
                 logger.info(f"  - {category}: {count}")

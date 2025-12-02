@@ -11,7 +11,7 @@ from traveltime_drive_time_comparisons.analysis import (
     run_analysis,
 )
 from traveltime_drive_time_comparisons.config import parse_config
-from traveltime_drive_time_comparisons.collect import Fields
+from traveltime_drive_time_comparisons.common import CaseCategory, Fields
 from traveltime_drive_time_comparisons.api_requests import factory
 from traveltime_drive_time_comparisons.plot import (
     plot_accuracy_comparison,
@@ -59,7 +59,7 @@ async def run():
     log_snapping_summary(travel_times_df)
 
     clean_travel_times_df = travel_times_df[
-        travel_times_df[Fields.CASE_CATEGORY] == "clean"
+        travel_times_df[Fields.CASE_CATEGORY] == CaseCategory.CLEAN
     ]
 
     filtered_travel_times_df = clean_travel_times_df.loc[
