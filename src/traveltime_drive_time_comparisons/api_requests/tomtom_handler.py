@@ -8,6 +8,7 @@ from traveltime_drive_time_comparisons.config import Mode
 from traveltime_drive_time_comparisons.api_requests.base_handler import (
     BaseRequestHandler,
     RequestResult,
+    SnappedCoordinates,
     create_async_limiter,
 )
 
@@ -52,14 +53,34 @@ class TomTomRequestHandler(BaseRequestHandler):
             ):
                 data = await response.json()
                 if response.status == 200:
-                    travel_time = data["routes"][0]["summary"]["travelTimeInSeconds"]
+                    route = data["routes"][0]
+                    travel_time = route["summary"]["travelTimeInSeconds"]
+                    distance = route["summary"].get("lengthInMeters")
 
                     if not travel_time:
                         raise TomTomApiError(
                             "No route found between origin and destination."
                         )
 
-                    return RequestResult(travel_time=travel_time)
+                    snapped = None
+                    legs = route.get("legs", [])
+                    if legs:
+                        points = legs[0].get("points", [])
+                        if len(points) >= 2:
+                            first_point = points[0]
+                            last_point = points[-1]
+                            snapped = SnappedCoordinates(
+                                origin_lat=first_point.get("latitude"),
+                                origin_lng=first_point.get("longitude"),
+                                destination_lat=last_point.get("latitude"),
+                                destination_lng=last_point.get("longitude"),
+                            )
+
+                    return RequestResult(
+                        travel_time=travel_time,
+                        distance=distance,
+                        snapped_coords=snapped,
+                    )
                 else:
                     error_message = data.get("detailedError", "")
                     logger.error(

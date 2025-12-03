@@ -8,6 +8,7 @@ from traveltime_drive_time_comparisons.config import Mode
 from traveltime_drive_time_comparisons.api_requests.base_handler import (
     BaseRequestHandler,
     RequestResult,
+    SnappedCoordinates,
     create_async_limiter,
 )
 
@@ -62,8 +63,26 @@ class OSRMRequestHandler(BaseRequestHandler):
                         )
 
                     total_duration = sum(leg["duration"] for leg in first_route["legs"])
+                    total_distance = sum(leg["distance"] for leg in first_route["legs"])
 
-                    return RequestResult(travel_time=int(total_duration))
+                    snapped = None
+                    waypoints = data.get("waypoints", [])
+                    if len(waypoints) >= 2:
+                        origin_wp = waypoints[0].get("location", [])
+                        dest_wp = waypoints[-1].get("location", [])
+                        if len(origin_wp) >= 2 and len(dest_wp) >= 2:
+                            snapped = SnappedCoordinates(
+                                origin_lat=origin_wp[1],
+                                origin_lng=origin_wp[0],
+                                destination_lat=dest_wp[1],
+                                destination_lng=dest_wp[0],
+                            )
+
+                    return RequestResult(
+                        travel_time=int(total_duration),
+                        distance=int(total_distance),
+                        snapped_coords=snapped,
+                    )
                 else:
                     error_message = data.get("detailedError", "")
                     logger.error(

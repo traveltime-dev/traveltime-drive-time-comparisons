@@ -11,8 +11,18 @@ from traveltime_drive_time_comparisons.config import Mode
 
 
 @dataclass
+class SnappedCoordinates:
+    origin_lat: float
+    origin_lng: float
+    destination_lat: float
+    destination_lng: float
+
+
+@dataclass
 class RequestResult:
     travel_time: Optional[int]
+    distance: Optional[int] = None
+    snapped_coords: Optional[SnappedCoordinates] = None
 
 
 class BaseRequestHandler(ABC):

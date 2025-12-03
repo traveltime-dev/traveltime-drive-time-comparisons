@@ -10,6 +10,7 @@ from traveltime_drive_time_comparisons.config import Mode
 from traveltime_drive_time_comparisons.api_requests.base_handler import (
     BaseRequestHandler,
     RequestResult,
+    SnappedCoordinates,
     create_async_limiter,
 )
 
@@ -69,7 +70,22 @@ class GoogleRequestHandler(BaseRequestHandler):
                     travel_time = leg.get(
                         self.DURATION_IN_TRAFFIC, leg.get(self.DURATION)
                     )["value"]
-                    return RequestResult(travel_time=travel_time)
+
+                    distance = leg.get("distance", {}).get("value")
+
+                    start = leg.get("start_location", {})
+                    end = leg.get("end_location", {})
+                    snapped = SnappedCoordinates(
+                        origin_lat=start.get("lat"),
+                        origin_lng=start.get("lng"),
+                        destination_lat=end.get("lat"),
+                        destination_lng=end.get("lng"),
+                    )
+                    return RequestResult(
+                        travel_time=travel_time,
+                        distance=distance,
+                        snapped_coords=snapped,
+                    )
                 else:
                     error_message = data.get("error_message", "")
                     logger.error(

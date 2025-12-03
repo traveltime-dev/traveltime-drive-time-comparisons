@@ -16,6 +16,7 @@ from traveltime_drive_time_comparisons.common import (
 from traveltime_drive_time_comparisons.config import Mode
 from traveltime_drive_time_comparisons.api_requests.base_handler import (
     BaseRequestHandler,
+    SnappedCoordinates,
 )
 
 
@@ -43,7 +44,15 @@ async def fetch_travel_time(
         logger.debug(
             f"Finished request to {api} for {origin_coord}, {destination_coord}, {departure_time}"
         )
-        return wrap_result(origin, destination, result.travel_time, departure_time, api)
+        return wrap_result(
+            origin,
+            destination,
+            result.travel_time,
+            result.distance,
+            result.snapped_coords,
+            departure_time,
+            api,
+        )
 
 
 def parse_coordinates(coord_string: str) -> Coordinates:
@@ -55,15 +64,34 @@ def wrap_result(
     origin: str,
     destination: str,
     travel_time: Optional[int],
+    distance: Optional[int],
+    snapped_coords: Optional[SnappedCoordinates],
     departure_time: datetime,
     api: str,
 ):
-    return {
+    result = {
         Fields.ORIGIN: origin,
         Fields.DESTINATION: destination,
         Fields.DEPARTURE_TIME: departure_time.strftime("%Y-%m-%d %H:%M:%S%z"),
         Fields.TRAVEL_TIME[api]: travel_time,
+        Fields.DISTANCE[api]: distance,
     }
+    if snapped_coords:
+        if (
+            snapped_coords.origin_lat is not None
+            and snapped_coords.origin_lng is not None
+        ):
+            result[Fields.SNAPPED_ORIGIN[api]] = (
+                f"{snapped_coords.origin_lat},{snapped_coords.origin_lng}"
+            )
+        if (
+            snapped_coords.destination_lat is not None
+            and snapped_coords.destination_lng is not None
+        ):
+            result[Fields.SNAPPED_DESTINATION[api]] = (
+                f"{snapped_coords.destination_lat},{snapped_coords.destination_lng}"
+            )
+    return result
 
 
 def localize_datetime(date: str, time: str, timezone: BaseTzInfo) -> datetime:
@@ -112,9 +140,22 @@ async def collect_travel_times(
     results = await asyncio.gather(*tasks)
 
     results_df = pd.DataFrame(results)
+
+    agg_dict = {Fields.TRAVEL_TIME[provider]: "first" for provider in provider_names}
+    for provider in provider_names:
+        snapped_origin_col = Fields.SNAPPED_ORIGIN[provider]
+        snapped_dest_col = Fields.SNAPPED_DESTINATION[provider]
+        distance_col = Fields.DISTANCE[provider]
+        if snapped_origin_col in results_df.columns:
+            agg_dict[snapped_origin_col] = "first"
+        if snapped_dest_col in results_df.columns:
+            agg_dict[snapped_dest_col] = "first"
+        if distance_col in results_df.columns:
+            agg_dict[distance_col] = "first"
+
     deduplicated = results_df.groupby(
         [Fields.ORIGIN, Fields.DESTINATION, Fields.DEPARTURE_TIME], as_index=False
-    ).agg({Fields.TRAVEL_TIME[provider]: "first" for provider in provider_names})
+    ).agg(agg_dict)
     deduplicated.to_csv(args.output, index=False)
     return deduplicated
 

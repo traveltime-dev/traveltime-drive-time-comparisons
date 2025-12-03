@@ -8,6 +8,7 @@ from traveltime_drive_time_comparisons.config import Mode
 from traveltime_drive_time_comparisons.api_requests.base_handler import (
     BaseRequestHandler,
     RequestResult,
+    SnappedCoordinates,
     create_async_limiter,
 )
 
@@ -54,12 +55,33 @@ class MapboxRequestHandler(BaseRequestHandler):
             ):
                 data = await response.json()
                 if response.status == 200:
-                    duration = data["routes"][0]["duration"]
+                    route = data["routes"][0]
+                    duration = route["duration"]
                     if not duration:
                         raise MapboxApiError(
                             "No route found between origin and destination."
                         )
-                    return RequestResult(travel_time=int(duration))
+
+                    distance = route.get("distance")
+
+                    snapped = None
+                    waypoints = data.get("waypoints", [])
+                    if len(waypoints) >= 2:
+                        origin_wp = waypoints[0].get("location", [])
+                        dest_wp = waypoints[-1].get("location", [])
+                        if len(origin_wp) >= 2 and len(dest_wp) >= 2:
+                            snapped = SnappedCoordinates(
+                                origin_lat=origin_wp[1],
+                                origin_lng=origin_wp[0],
+                                destination_lat=dest_wp[1],
+                                destination_lng=dest_wp[0],
+                            )
+
+                    return RequestResult(
+                        travel_time=int(duration),
+                        distance=int(distance) if distance else None,
+                        snapped_coords=snapped,
+                    )
                 else:
                     error_message = data.get("detailedError", "")
                     logger.error(
