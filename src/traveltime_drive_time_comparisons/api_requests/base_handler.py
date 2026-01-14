@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from aiolimiter import AsyncLimiter
 from traveltimepy.requests.common import Coordinates
@@ -23,6 +23,7 @@ class RequestResult:
     travel_time: Optional[int]
     distance: Optional[int] = None
     snapped_coords: Optional[SnappedCoordinates] = None
+    warnings: List[str] = field(default_factory=list)
 
 
 class BaseRequestHandler(ABC):

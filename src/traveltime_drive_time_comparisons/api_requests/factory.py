@@ -11,7 +11,7 @@ from traveltime_drive_time_comparisons.config import Provider, Providers
 from traveltime_drive_time_comparisons.api_requests.base_handler import (
     BaseRequestHandler,
 )
-from traveltime_drive_time_comparisons.api_requests.google_handler import (
+from traveltime_drive_time_comparisons.api_requests.google_handler_new import (
     GoogleRequestHandler,
 )
 from traveltime_drive_time_comparisons.api_requests.tomtom_handler import (
