@@ -4,10 +4,8 @@ from traveltime_drive_time_comparisons.common import (
     TOMTOM_API,
     HERE_API,
     MAPBOX_API,
-    OSRM_API,
     TRAVELTIME_API,
     GOOGLE_API,
-    VALHALLA_API,
 )
 from traveltime_drive_time_comparisons.config import Provider, Providers
 from traveltime_drive_time_comparisons.api_requests.base_handler import (
@@ -22,14 +20,8 @@ from traveltime_drive_time_comparisons.api_requests.tomtom_handler import (
 from traveltime_drive_time_comparisons.api_requests.here_handler import (
     HereRequestHandler,
 )
-from traveltime_drive_time_comparisons.api_requests.osrm_handler import (
-    OSRMRequestHandler,
-)
 from traveltime_drive_time_comparisons.api_requests.mapbox_handler import (
     MapboxRequestHandler,
-)
-from traveltime_drive_time_comparisons.api_requests.valhalla_handler import (
-    ValhallaRequestHandler,
 )
 from traveltime_drive_time_comparisons.api_requests.traveltime_handler import (
     TravelTimeRequestHandler,
@@ -52,16 +44,10 @@ def initialize_request_handlers(providers: Providers) -> Dict[str, BaseRequestHa
             provider.credentials.api_key, provider.max_rpm, provider.api_endpoint
         )
 
-    def create_osrm_handler(provider: Provider):
-        return OSRMRequestHandler("", provider.max_rpm, provider.api_endpoint)
-
     def create_mapbox_handler(provider: Provider):
         return MapboxRequestHandler(
             provider.credentials.api_key, provider.max_rpm, provider.api_endpoint
         )
-
-    def create_valhalla_handler(provider: Provider):
-        return ValhallaRequestHandler("", provider.max_rpm, provider.api_endpoint)
 
     def create_traveltime_handler(provider: Provider):
         return TravelTimeRequestHandler(
@@ -75,9 +61,7 @@ def initialize_request_handlers(providers: Providers) -> Dict[str, BaseRequestHa
         GOOGLE_API: create_google_handler,
         TOMTOM_API: create_tomtom_handler,
         HERE_API: create_here_handler,
-        OSRM_API: create_osrm_handler,
         MAPBOX_API: create_mapbox_handler,
-        VALHALLA_API: create_valhalla_handler,
     }
 
     handlers = {}

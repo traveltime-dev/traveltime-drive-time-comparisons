@@ -10,7 +10,6 @@ from traveltime_drive_time_comparisons.analysis import (
 from traveltime_drive_time_comparisons.common import (
     GOOGLE_API,
     HERE_API,
-    OSRM_API,
     TOMTOM_API,
     TRAVELTIME_API,
     Fields,
@@ -137,15 +136,14 @@ def test_calculate_accuracies():
             Fields.TRAVEL_TIME[GOOGLE_API]: [100, 200, 300],
             Fields.TRAVEL_TIME[TOMTOM_API]: [110, 190, 310],
             Fields.TRAVEL_TIME[HERE_API]: [90, 210, 290],
-            Fields.TRAVEL_TIME[OSRM_API]: [105, 195, 305],
         }
     )
 
     result = calculate_accuracies(data, Fields.TRAVEL_TIME)
 
-    assert len(result) == 4
-    assert list(result["Accuracy Score"].round()) == [100.0, 97.0, 94.0, 94.0]
-    assert list(result["Relative Time"].round()) == [100.0, 101.0, 103.0, 97.0]
+    assert len(result) == 3
+    assert list(result["Accuracy Score"].round()) == [100.0, 94.0, 94.0]
+    assert list(result["Relative Time"].round()) == [100.0, 103.0, 97.0]
 
 
 def test_format_results_for_csv_handles_nan_in_relative_errors():
