@@ -11,7 +11,7 @@ from traveltime_drive_time_comparisons.api_requests.traveltime_handler import (
 
 def test_get_traveltime_specific_mode_for_driving():
     result = get_traveltime_specific_mode(Mode.DRIVING)
-    assert result == Driving()
+    assert result == Driving(disable_border_crossing=False)
 
 
 def test_get_traveltime_specific_mode_for_public_transport():

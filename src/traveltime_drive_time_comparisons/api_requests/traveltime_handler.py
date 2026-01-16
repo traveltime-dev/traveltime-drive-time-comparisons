@@ -119,7 +119,7 @@ class RouteNotFoundError(Exception):
 
 def get_traveltime_specific_mode(mode: Mode) -> Union[Driving, PublicTransport]:
     if mode.value == Mode.DRIVING.value:
-        return Driving()
+        return Driving(disable_border_crossing=False)
     elif mode.value == Mode.PUBLIC_TRANSPORT.value:
         return PublicTransport()
     else:
