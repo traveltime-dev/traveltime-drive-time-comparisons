@@ -123,3 +123,45 @@ def log_snapping_summary(df: DataFrame) -> None:
             count = (df[Fields.CASE_CATEGORY] == category).sum()
             if count > 0:
                 logger.info(f"  - {category}: {count}")
+
+
+RESTRICTED_ROAD_KEYWORDS = [
+    "restricted",
+    "private",
+]
+
+
+def has_restricted_road_warning(warnings_str: str) -> bool:
+    if not warnings_str or pd.isna(warnings_str):
+        return False
+    warnings_lower = warnings_str.lower()
+    return any(keyword in warnings_lower for keyword in RESTRICTED_ROAD_KEYWORDS)
+
+
+def detect_restricted_roads(df: DataFrame) -> DataFrame:
+    df = df.copy()
+    warnings_col = Fields.WARNINGS.get("google")
+
+    if warnings_col not in df.columns:
+        return df
+
+    for i, (idx, row) in enumerate(df.iterrows()):
+        if row[Fields.CASE_CATEGORY] == CaseCategory.CLEAN:
+            warnings_str = row.get(warnings_col)
+            if has_restricted_road_warning(warnings_str):
+                df.at[idx, Fields.CASE_CATEGORY] = CaseCategory.RESTRICTED_ROAD
+
+    return df
+
+
+def log_restricted_roads_summary(df: DataFrame) -> None:
+    total = len(df)
+    if total == 0:
+        return
+
+    restricted_count = (df[Fields.CASE_CATEGORY] == CaseCategory.RESTRICTED_ROAD).sum()
+
+    if restricted_count > 0:
+        logger.info(
+            f"Detected {restricted_count} routes with restricted/private road warnings"
+        )

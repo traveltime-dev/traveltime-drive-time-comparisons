@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from datetime import datetime
-from typing import List, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import pytz
@@ -50,6 +50,7 @@ async def fetch_travel_time(
             result.travel_time,
             result.distance,
             result.snapped_coords,
+            result.warnings,
             departure_time,
             api,
         )
@@ -66,10 +67,11 @@ def wrap_result(
     travel_time: Optional[int],
     distance: Optional[int],
     snapped_coords: Optional[SnappedCoordinates],
+    warnings: List[str],
     departure_time: datetime,
     api: str,
-):
-    result = {
+) -> Dict[str, Any]:
+    result: Dict[str, Any] = {
         Fields.ORIGIN: origin,
         Fields.DESTINATION: destination,
         Fields.DEPARTURE_TIME: departure_time.strftime("%Y-%m-%d %H:%M:%S%z"),
@@ -91,6 +93,9 @@ def wrap_result(
             result[Fields.SNAPPED_DESTINATION[api]] = (
                 f"{snapped_coords.destination_lat},{snapped_coords.destination_lng}"
             )
+    warnings_col = Fields.WARNINGS.get(api)
+    if warnings_col and warnings:
+        result[warnings_col] = "|".join(warnings)
     return result
 
 
@@ -146,12 +151,15 @@ async def collect_travel_times(
         snapped_origin_col = Fields.SNAPPED_ORIGIN[provider]
         snapped_dest_col = Fields.SNAPPED_DESTINATION[provider]
         distance_col = Fields.DISTANCE[provider]
+        warnings_col = Fields.WARNINGS.get(provider)
         if snapped_origin_col in results_df.columns:
             agg_dict[snapped_origin_col] = "first"
         if snapped_dest_col in results_df.columns:
             agg_dict[snapped_dest_col] = "first"
         if distance_col in results_df.columns:
             agg_dict[distance_col] = "first"
+        if warnings_col and warnings_col in results_df.columns:
+            agg_dict[warnings_col] = "first"
 
     deduplicated = results_df.groupby(
         [Fields.ORIGIN, Fields.DESTINATION, Fields.DEPARTURE_TIME], as_index=False

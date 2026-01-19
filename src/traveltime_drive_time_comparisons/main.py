@@ -19,6 +19,8 @@ from traveltime_drive_time_comparisons.plot import (
 )
 from traveltime_drive_time_comparisons.snapping import (
     detect_bad_snapping,
+    detect_restricted_roads,
+    log_restricted_roads_summary,
     log_snapping_summary,
 )
 
@@ -58,6 +60,9 @@ async def run():
     travel_times_df = detect_bad_snapping(travel_times_df, all_provider_names)
     log_snapping_summary(travel_times_df)
 
+    travel_times_df = detect_restricted_roads(travel_times_df)
+    log_restricted_roads_summary(travel_times_df)
+
     clean_travel_times_df = travel_times_df[
         travel_times_df[Fields.CASE_CATEGORY] == CaseCategory.CLEAN
     ]
@@ -74,12 +79,21 @@ async def run():
     all_rows = len(travel_times_df)
     clean_rows = len(clean_travel_times_df)
     filtered_rows = len(filtered_travel_times_df)
-    bad_snap_rows = all_rows - clean_rows
+    bad_snap_rows = (
+        travel_times_df[Fields.CASE_CATEGORY].str.startswith("bad_snap").sum()
+    )
+    restricted_road_rows = (
+        travel_times_df[Fields.CASE_CATEGORY] == CaseCategory.RESTRICTED_ROAD
+    ).sum()
     missing_data_rows = clean_rows - filtered_rows
 
     if bad_snap_rows > 0:
         logger.info(
             f"Excluded {bad_snap_rows} rows ({100 * bad_snap_rows / all_rows:.2f}%) due to bad snapping"
+        )
+    if restricted_road_rows > 0:
+        logger.info(
+            f"Excluded {restricted_road_rows} rows ({100 * restricted_road_rows / all_rows:.2f}%) due to restricted/private road warnings"
         )
     if missing_data_rows > 0:
         logger.info(

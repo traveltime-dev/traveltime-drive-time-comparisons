@@ -19,6 +19,7 @@ class CaseCategory:
     BAD_SNAP_ORIGIN = "bad_snap_origin"
     BAD_SNAP_DESTINATION = "bad_snap_destination"
     BAD_SNAP_BOTH = "bad_snap_both"
+    RESTRICTED_ROAD = "restricted_road"
 
 
 @dataclass
@@ -53,6 +54,9 @@ class Fields:
         HERE_API: "here_distance",
         MAPBOX_API: "mapbox_distance",
         TRAVELTIME_API: "tt_distance",
+    }
+    WARNINGS = {
+        GOOGLE_API: "google_warnings",
     }
     CASE_CATEGORY = "case_category"
 
