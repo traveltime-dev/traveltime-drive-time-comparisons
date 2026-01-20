@@ -7,7 +7,6 @@ from pandas import DataFrame
 
 from traveltime_drive_time_comparisons.common import CaseCategory, Fields
 
-
 logger = logging.getLogger(__name__)
 
 EARTH_RADIUS_METERS = 6_371_000
