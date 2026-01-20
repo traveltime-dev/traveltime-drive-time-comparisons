@@ -92,8 +92,9 @@ async def run():
             f"Excluded {bad_snap_rows} rows ({100 * bad_snap_rows / all_rows:.2f}%) due to bad snapping"
         )
     if restricted_road_rows > 0:
+        pct = 100 * restricted_road_rows / all_rows
         logger.info(
-            f"Excluded {restricted_road_rows} rows ({100 * restricted_road_rows / all_rows:.2f}%) due to restricted/private road warnings"
+            f"Excluded {restricted_road_rows} rows ({pct:.2f}%) due to restricted/private road warnings"
         )
     if missing_data_rows > 0:
         logger.info(
