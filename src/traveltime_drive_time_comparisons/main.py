@@ -17,7 +17,7 @@ from traveltime_drive_time_comparisons.plot import (
     plot_accuracy_comparison,
     plot_relative_time_comparison,
 )
-from traveltime_drive_time_comparisons.snapping import (
+from traveltime_drive_time_comparisons.case_analysis import (
     detect_bad_snapping,
     detect_restricted_roads,
     log_restricted_roads_summary,
