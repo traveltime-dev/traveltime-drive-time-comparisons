@@ -8,7 +8,7 @@ TRAVELTIME_API = "traveltime"
 
 
 PROVIDER_COLUMN = "Provider"
-ACCURARY_SCORE_COLUMN = "Accuracy Score"
+ACCURACY_SCORE_COLUMN = "Accuracy Score"
 RELATIVE_TIME_COLUMN = "Relative Time"
 
 
