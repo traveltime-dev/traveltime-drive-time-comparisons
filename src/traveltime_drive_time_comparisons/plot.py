@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from traveltime_drive_time_comparisons.common import (
     PROVIDER_COLUMN,
-    ACCURARY_SCORE_COLUMN,
+    ACCURACY_SCORE_COLUMN,
     RELATIVE_TIME_COLUMN,
 )
 
@@ -26,7 +26,7 @@ def plot_accuracy_comparison(
 
     bars = ax.bar(
         accuracy_df[PROVIDER_COLUMN],
-        accuracy_df[ACCURARY_SCORE_COLUMN],
+        accuracy_df[ACCURACY_SCORE_COLUMN],
         color=colors,
         alpha=0.7,
         edgecolor="black",
@@ -35,7 +35,7 @@ def plot_accuracy_comparison(
 
     ax.set_title(title, fontsize=14, fontweight="bold", pad=20)
     ax.set_xlabel(PROVIDER_COLUMN, fontsize=12)
-    ax.set_ylabel(ACCURARY_SCORE_COLUMN, fontsize=12)
+    ax.set_ylabel(ACCURACY_SCORE_COLUMN, fontsize=12)
 
     for bar in bars:
         height = bar.get_height()
@@ -54,8 +54,8 @@ def plot_accuracy_comparison(
     ax.set_axisbelow(True)
 
     # Dynamic y-axis range
-    min_val = min(accuracy_df[ACCURARY_SCORE_COLUMN])
-    max_val = max(accuracy_df[ACCURARY_SCORE_COLUMN])
+    min_val = min(accuracy_df[ACCURACY_SCORE_COLUMN])
+    max_val = max(accuracy_df[ACCURACY_SCORE_COLUMN])
     range_size = max_val - min_val
 
     # Add 10% padding above and below the data range

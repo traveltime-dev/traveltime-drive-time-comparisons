@@ -54,7 +54,7 @@ class Mode(Enum):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Fetch and compare travel times from TravelTime Routes API and it's competitors"
+        description="Fetch and compare travel times from TravelTime Routes API and its competitors"
     )
     parser.add_argument("--input", required=True, help="Input CSV file path")
     parser.add_argument("--output", required=True, help="Output CSV file path")

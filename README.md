@@ -98,7 +98,7 @@ traveltime_drive_time_comparisons --input examples/uk.csv --output output.csv --
 The console output contains results when comparing each provider to Google (this part of course relies on Google provider being enabled in the configuration file).
 
 - **Accuracy Score - `100 - mean_absolute_error`**. This gives a score 0 to 100 of how close the travel times on average are to Google, regardless of whether they are higher or lower.
-- **Relative Time - `100 - bias` (bias can be negative)**. This gives a value around 100 (can be higer or lower than 100), which indicates how much on average this provider undershoots or overshoots when compared to Google.
+- **Relative Time - `100 - bias` (bias can be negative)**. This gives a value around 100 (can be higher or lower than 100), which indicates how much on average this provider undershoots or overshoots when compared to Google.
 
 Examples:
 - **Accuracy Score = 95, Relative Time = 105** - this provider always returns higher results than Google, by 5% on average.
