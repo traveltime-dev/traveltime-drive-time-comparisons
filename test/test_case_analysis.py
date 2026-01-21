@@ -1,7 +1,9 @@
 import pandas as pd
 import pytest
-from traveltime_drive_time_comparisons.snapping import (
+from traveltime_drive_time_comparisons.case_analysis import (
     detect_bad_snapping,
+    detect_restricted_roads,
+    has_restricted_road_warning,
     haversine_distance,
     parse_coordinates,
 )
@@ -198,4 +200,117 @@ class TestDetectBadSnapping:
             CaseCategory.CLEAN,
             CaseCategory.BAD_SNAP_ORIGIN,
             CaseCategory.BAD_SNAP_DESTINATION,
+        ]
+
+
+class TestHasRestrictedRoadWarning:
+    def test_returns_false_for_none(self):
+        assert has_restricted_road_warning(None) is False
+
+    def test_returns_false_for_nan(self):
+        assert has_restricted_road_warning(float("nan")) is False
+
+    def test_returns_false_for_empty_string(self):
+        assert has_restricted_road_warning("") is False
+
+    def test_returns_false_for_unrelated_warning(self):
+        assert has_restricted_road_warning("Traffic delay expected") is False
+
+    def test_returns_true_for_restricted_keyword(self):
+        assert has_restricted_road_warning("This route uses restricted roads") is True
+
+    def test_returns_true_for_private_keyword(self):
+        assert (
+            has_restricted_road_warning("Route passes through private property") is True
+        )
+
+    def test_case_insensitive_restricted(self):
+        assert has_restricted_road_warning("RESTRICTED access road") is True
+
+    def test_case_insensitive_private(self):
+        assert has_restricted_road_warning("PRIVATE road ahead") is True
+
+
+class TestDetectRestrictedRoads:
+    def test_marks_clean_row_as_restricted_when_warning_present(self):
+        df = pd.DataFrame(
+            {
+                Fields.ORIGIN: ["51.5074, -0.1278"],
+                Fields.DESTINATION: ["48.8566, 2.3522"],
+                Fields.CASE_CATEGORY: [CaseCategory.CLEAN],
+                Fields.WARNINGS[GOOGLE_API]: ["This route uses restricted roads"],
+            }
+        )
+        result = detect_restricted_roads(df)
+        assert result[Fields.CASE_CATEGORY].iloc[0] == CaseCategory.RESTRICTED_ROAD
+
+    def test_does_not_modify_bad_snap_rows(self):
+        df = pd.DataFrame(
+            {
+                Fields.ORIGIN: ["51.5074, -0.1278"],
+                Fields.DESTINATION: ["48.8566, 2.3522"],
+                Fields.CASE_CATEGORY: [CaseCategory.BAD_SNAP_ORIGIN],
+                Fields.WARNINGS[GOOGLE_API]: ["This route uses restricted roads"],
+            }
+        )
+        result = detect_restricted_roads(df)
+        assert result[Fields.CASE_CATEGORY].iloc[0] == CaseCategory.BAD_SNAP_ORIGIN
+
+    def test_leaves_clean_row_clean_when_no_warning(self):
+        df = pd.DataFrame(
+            {
+                Fields.ORIGIN: ["51.5074, -0.1278"],
+                Fields.DESTINATION: ["48.8566, 2.3522"],
+                Fields.CASE_CATEGORY: [CaseCategory.CLEAN],
+                Fields.WARNINGS[GOOGLE_API]: ["Traffic is normal"],
+            }
+        )
+        result = detect_restricted_roads(df)
+        assert result[Fields.CASE_CATEGORY].iloc[0] == CaseCategory.CLEAN
+
+    def test_handles_missing_warnings_column(self):
+        df = pd.DataFrame(
+            {
+                Fields.ORIGIN: ["51.5074, -0.1278"],
+                Fields.DESTINATION: ["48.8566, 2.3522"],
+                Fields.CASE_CATEGORY: [CaseCategory.CLEAN],
+            }
+        )
+        result = detect_restricted_roads(df)
+        assert result[Fields.CASE_CATEGORY].iloc[0] == CaseCategory.CLEAN
+
+    def test_handles_nan_warning_value(self):
+        df = pd.DataFrame(
+            {
+                Fields.ORIGIN: ["51.5074, -0.1278"],
+                Fields.DESTINATION: ["48.8566, 2.3522"],
+                Fields.CASE_CATEGORY: [CaseCategory.CLEAN],
+                Fields.WARNINGS[GOOGLE_API]: [None],
+            }
+        )
+        result = detect_restricted_roads(df)
+        assert result[Fields.CASE_CATEGORY].iloc[0] == CaseCategory.CLEAN
+
+    def test_multiple_rows_mixed_cases(self):
+        df = pd.DataFrame(
+            {
+                Fields.ORIGIN: ["51.5074, -0.1278", "52.0, 0.0", "53.0, 1.0"],
+                Fields.DESTINATION: ["48.8566, 2.3522", "49.0, 3.0", "50.0, 4.0"],
+                Fields.CASE_CATEGORY: [
+                    CaseCategory.CLEAN,
+                    CaseCategory.CLEAN,
+                    CaseCategory.BAD_SNAP_ORIGIN,
+                ],
+                Fields.WARNINGS[GOOGLE_API]: [
+                    "Route uses private roads",
+                    "Normal route",
+                    "Route uses restricted roads",
+                ],
+            }
+        )
+        result = detect_restricted_roads(df)
+        assert result[Fields.CASE_CATEGORY].tolist() == [
+            CaseCategory.RESTRICTED_ROAD,
+            CaseCategory.CLEAN,
+            CaseCategory.BAD_SNAP_ORIGIN,
         ]
