@@ -28,13 +28,15 @@ class GoogleRequestHandler(BaseRequestHandler):
 
     default_timeout = aiohttp.ClientTimeout(total=60)
 
-    FIELD_MASK = ",".join([
-        "routes.duration",
-        "routes.distanceMeters",
-        "routes.warnings",
-        "routes.legs.startLocation",
-        "routes.legs.endLocation",
-    ])
+    FIELD_MASK = ",".join(
+        [
+            "routes.duration",
+            "routes.distanceMeters",
+            "routes.warnings",
+            "routes.legs.startLocation",
+            "routes.legs.endLocation",
+        ]
+    )
 
     def __init__(self, api_key, max_rpm, api_endpoint):
         self.api_key = api_key

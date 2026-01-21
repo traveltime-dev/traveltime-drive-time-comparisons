@@ -66,7 +66,7 @@ class TravelTimeRequestHandler(BaseRequestHandler):
                             properties=[Property.TRAVEL_TIME, Property.ROUTE],
                             snapping=Snapping(
                                 penalty=SnappingPenalty.DISABLED,
-                                accept_roads=SnappingAcceptRoads.BOTH_DRIVABLE_AND_WALKABLE,
+                                accept_roads=SnappingAcceptRoads.ANY_DRIVABLE,
                             ),
                         )
                     ],

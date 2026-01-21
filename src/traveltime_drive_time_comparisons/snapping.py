@@ -1,12 +1,11 @@
 import math
 import logging
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import pandas as pd
 from pandas import DataFrame
 
 from traveltime_drive_time_comparisons.common import CaseCategory, Fields
-
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +130,7 @@ RESTRICTED_ROAD_KEYWORDS = [
 ]
 
 
-def has_restricted_road_warning(warnings_str: str) -> bool:
+def has_restricted_road_warning(warnings_str: Optional[str]) -> bool:
     if not warnings_str or pd.isna(warnings_str):
         return False
     warnings_lower = warnings_str.lower()

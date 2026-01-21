@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-
 GOOGLE_API = "google"
 TOMTOM_API = "tomtom"
 HERE_API = "here"

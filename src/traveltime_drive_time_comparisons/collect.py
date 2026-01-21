@@ -19,7 +19,6 @@ from traveltime_drive_time_comparisons.api_requests.base_handler import (
     SnappedCoordinates,
 )
 
-
 logger = logging.getLogger(__name__)
 
 
