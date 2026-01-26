@@ -29,7 +29,6 @@ dependencies = [
     "PyQt5",
     "matplotlib",
     "traveltimepy>=4.0.0",
-    "google-maps-routing",
 ]
 
 [project.urls]
