@@ -91,6 +91,11 @@ def parse_args():
         action=argparse.BooleanOptionalAction,
         help=("If set, graphs of the final summary will not be shown."),
     )
+    parser.add_argument(
+        "--debug",
+        action=argparse.BooleanOptionalAction,
+        help=("If set, shows detailed provider comparison statistics."),
+    )
     return parser.parse_args()
 
 
