@@ -11,7 +11,11 @@ from traveltime_drive_time_comparisons.analysis import (
     run_analysis,
 )
 from traveltime_drive_time_comparisons.config import parse_config
-from traveltime_drive_time_comparisons.common import CaseCategory, Fields
+from traveltime_drive_time_comparisons.common import (
+    CaseCategory,
+    Fields,
+    RELATIVE_TIME_COLUMN,
+)
 from traveltime_drive_time_comparisons.api_requests import factory
 from traveltime_drive_time_comparisons.plot import (
     plot_accuracy_comparison,
@@ -20,8 +24,6 @@ from traveltime_drive_time_comparisons.plot import (
 from traveltime_drive_time_comparisons.case_analysis import (
     detect_bad_snapping,
     detect_restricted_roads,
-    log_restricted_roads_summary,
-    log_snapping_summary,
 )
 
 logging.basicConfig(
@@ -58,10 +60,7 @@ async def run():
         )
 
     travel_times_df = detect_bad_snapping(travel_times_df, all_provider_names)
-    log_snapping_summary(travel_times_df)
-
     travel_times_df = detect_restricted_roads(travel_times_df)
-    log_restricted_roads_summary(travel_times_df)
 
     clean_travel_times_df = travel_times_df[
         travel_times_df[Fields.CASE_CATEGORY] == CaseCategory.CLEAN
@@ -105,22 +104,28 @@ async def run():
         logger.info("All rows from the input file were skipped. Exiting.")
     else:
         accuracy_df = calculate_accuracies(filtered_travel_times_df, Fields.TRAVEL_TIME)
+        display_df = (
+            accuracy_df
+            if args.debug
+            else accuracy_df.drop(columns=[RELATIVE_TIME_COLUMN])
+        )
         logger.info(
-            "Baseline summary, comparing to Google: \n" + accuracy_df.to_string()
+            "Baseline summary, comparing to Google: \n" + display_df.to_string()
         )
 
         # If accuracy output path is defined, write to it
         if args.accuracy_output:
             accuracy_df.to_csv(args.accuracy_output, index=False)
 
-        run_analysis(travel_times_df, args.output, 0.90, providers)
+        run_analysis(travel_times_df, args.output, 0.90, providers, args.debug)
 
         if not args.skip_plotting:
             if not accuracy_df.empty:
                 plot_accuracy_comparison(accuracy_df, "Accuracy Score (Google = 100)")
-                plot_relative_time_comparison(
-                    accuracy_df, "Relative Time (Google = 100)"
-                )
+                if args.debug:
+                    plot_relative_time_comparison(
+                        accuracy_df, "Relative Time (Google = 100)"
+                    )
                 plt.show()
             else:
                 logger.info("No data available for plotting")

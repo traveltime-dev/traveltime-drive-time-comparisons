@@ -87,7 +87,11 @@ def format_results_for_csv(results_with_differences: DataFrame) -> DataFrame:
 
 
 def run_analysis(
-    results: DataFrame, output_file: str, quantile: float, api_providers: Providers
+    results: DataFrame,
+    output_file: str,
+    quantile: float,
+    api_providers: Providers,
+    debug: bool = False,
 ):
     accumulated_results = results.copy()
     for target_provider in api_providers.all_providers():
@@ -99,7 +103,10 @@ def run_analysis(
             if col not in accumulated_results.columns:
                 accumulated_results[col] = results_with_differences[col]
 
-        log_results(results_with_differences, quantile, target_provider, api_providers)
+        if debug:
+            log_results(
+                results_with_differences, quantile, target_provider, api_providers
+            )
 
     logging.info(f"Detailed results can be found in {output_file} file")
 

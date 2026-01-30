@@ -104,26 +104,6 @@ def detect_bad_snapping(
     return df
 
 
-def log_snapping_summary(df: DataFrame) -> None:
-    total = len(df)
-    if total == 0:
-        return
-
-    clean_count = (df[Fields.CASE_CATEGORY] == CaseCategory.CLEAN).sum()
-    bad_snap_count = total - clean_count
-
-    if bad_snap_count > 0:
-        logger.info(f"Detected {bad_snap_count} routes with bad snapping issues")
-        for category in [
-            CaseCategory.BAD_SNAP_ORIGIN,
-            CaseCategory.BAD_SNAP_DESTINATION,
-            CaseCategory.BAD_SNAP_BOTH,
-        ]:
-            count = (df[Fields.CASE_CATEGORY] == category).sum()
-            if count > 0:
-                logger.info(f"  - {category}: {count}")
-
-
 RESTRICTED_ROAD_KEYWORDS = [
     "restricted",
     "private",
@@ -151,16 +131,3 @@ def detect_restricted_roads(df: DataFrame) -> DataFrame:
                 df.at[idx, Fields.CASE_CATEGORY] = CaseCategory.RESTRICTED_ROAD
 
     return df
-
-
-def log_restricted_roads_summary(df: DataFrame) -> None:
-    total = len(df)
-    if total == 0:
-        return
-
-    restricted_count = (df[Fields.CASE_CATEGORY] == CaseCategory.RESTRICTED_ROAD).sum()
-
-    if restricted_count > 0:
-        logger.info(
-            f"Detected {restricted_count} routes with restricted/private road warnings"
-        )

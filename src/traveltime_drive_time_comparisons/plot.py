@@ -53,14 +53,8 @@ def plot_accuracy_comparison(
     ax.grid(axis="y", alpha=0.3, linestyle="--")
     ax.set_axisbelow(True)
 
-    # Dynamic y-axis range
-    min_val = min(accuracy_df[ACCURACY_SCORE_COLUMN])
     max_val = max(accuracy_df[ACCURACY_SCORE_COLUMN])
-    range_size = max_val - min_val
-
-    # Add 10% padding above and below the data range
-    padding = max(range_size * 0.1, 5)  # At least 5% padding
-    ax.set_ylim(max(0, min_val - padding), max_val + padding)
+    ax.set_ylim(0, max_val + 5)
 
     plt.tight_layout()
     return fig
