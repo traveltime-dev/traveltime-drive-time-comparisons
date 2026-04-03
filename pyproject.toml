@@ -29,6 +29,8 @@ dependencies = [
     "PyQt5>=5.15.11",
     "matplotlib>=3.7.0",
     "traveltimepy>=4.0.0",
+    "questionary>=2.1.0",
+    "rich>=13.0.0",
 ]
 
 [project.urls]
@@ -45,5 +47,6 @@ test = [
 
 [project.scripts]
 traveltime_drive_time_comparisons = "traveltime_drive_time_comparisons.main:main"
+traveltime_drive_time_comparisons_tui = "traveltime_drive_time_comparisons.tui:main"
 
 [tool.setuptools_scm]

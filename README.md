@@ -59,7 +59,17 @@ You can also disable unwanted APIs by changing the `enabled` value to `false`.
 ```
 
 ## Usage
-Run the tool:
+
+### Interactive mode (recommended)
+
+Run the interactive wizard which guides you through all required settings step by step:
+```bash
+traveltime_drive_time_comparisons_tui
+```
+
+### CLI mode
+
+Run the tool directly with command-line arguments:
 ```bash
 traveltime_drive_time_comparisons --input [Input CSV file path] --output [Output CSV file path] \
     --date [Date (YYYY-MM-DD)] --departure-times [Departure times (HH:MM, HH:MM)] --time-zone-id [Time zone ID] 
