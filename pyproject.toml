@@ -47,6 +47,5 @@ test = [
 
 [project.scripts]
 traveltime_drive_time_comparisons = "traveltime_drive_time_comparisons.main:main"
-traveltime_drive_time_comparisons_tui = "traveltime_drive_time_comparisons.tui:main"
 
 [tool.setuptools_scm]

@@ -1,5 +1,4 @@
 import argparse
-import asyncio
 import re
 from datetime import date, timedelta
 from pathlib import Path
@@ -42,7 +41,17 @@ def validate_departure_times(text):
 
 CUSTOM_PATH_OPTION = "Enter custom path..."
 
-INPUTS_DIR = Path(__file__).resolve().parent.parent.parent / "inputs"
+INPUTS_DIR = next(
+    (
+        p
+        for p in [
+            Path.cwd() / "inputs",
+            Path(__file__).resolve().parent.parent.parent / "inputs",
+        ]
+        if p.is_dir()
+    ),
+    Path("inputs"),
+)
 
 
 def choose_input_file() -> str:
@@ -174,18 +183,3 @@ def build_args(debug: bool = False) -> argparse.Namespace:
         raise SystemExit(0)
 
     return args
-
-
-def main():
-    import sys
-
-    debug = "--debug" in sys.argv
-    args = build_args(debug=debug)
-
-    from traveltime_drive_time_comparisons.main import run
-
-    asyncio.run(run(args))
-
-
-if __name__ == "__main__":
-    main()

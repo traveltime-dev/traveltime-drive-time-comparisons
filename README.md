@@ -64,7 +64,7 @@ You can also disable unwanted APIs by changing the `enabled` value to `false`.
 
 Run the interactive wizard which guides you through all required settings step by step:
 ```bash
-traveltime_drive_time_comparisons_tui
+traveltime_drive_time_comparisons --interactive
 ```
 
 ### CLI mode

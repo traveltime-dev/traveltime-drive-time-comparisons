@@ -133,7 +133,16 @@ async def run(args=None):
 
 
 def main():
-    asyncio.run(run())
+    import sys
+
+    if "--interactive" in sys.argv:
+        from traveltime_drive_time_comparisons.tui import build_args
+
+        debug = "--debug" in sys.argv
+        args = build_args(debug=debug)
+        asyncio.run(run(args))
+    else:
+        asyncio.run(run())
 
 
 if __name__ == "__main__":
