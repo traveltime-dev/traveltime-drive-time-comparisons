@@ -35,8 +35,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-async def run():
-    args = config.parse_args()
+async def run(args=None):
+    if args is None:
+        args = config.parse_args()
     config_path = args.config
 
     # Get all providers that should be tested against TravelTime
@@ -132,7 +133,16 @@ async def run():
 
 
 def main():
-    asyncio.run(run())
+    import sys
+
+    if "--interactive" in sys.argv:
+        from traveltime_drive_time_comparisons.tui import build_args
+
+        debug = "--debug" in sys.argv
+        args = build_args(debug=debug)
+        asyncio.run(run(args))
+    else:
+        asyncio.run(run())
 
 
 if __name__ == "__main__":
