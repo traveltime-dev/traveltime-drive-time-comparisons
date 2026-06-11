@@ -47,6 +47,6 @@ test = [
 
 [project.scripts]
 traveltime_drive_time_comparisons = "traveltime_drive_time_comparisons.main:main"
-traveltime_accuracy_page = "traveltime_drive_time_comparisons.accuracy_page.__main__:main"
+traveltime_accuracy_page_data = "traveltime_drive_time_comparisons.accuracy_page_data.__main__:main"
 
 [tool.setuptools_scm]

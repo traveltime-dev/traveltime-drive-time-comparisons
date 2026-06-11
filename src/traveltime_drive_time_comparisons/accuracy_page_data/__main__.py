@@ -1,19 +1,23 @@
 """CLI: generate the accuracy-page JSON aggregates from comparison output.csv files.
 
-`--input` is either:
+``--input`` takes one or more paths, each a CSV file or a directory of ``*.csv``.
+Each CSV is one subdivision, named after its filename (``Alabama.csv`` -> "Alabama"):
 
-  * a single ``output.csv``  -> a whole country (e.g. the UK), or
-  * a directory of ``*.csv``  -> one CSV per state/province (e.g. the US),
-    each file named after its subdivision (``Alabama.csv``, ``New_York.csv``).
+  * one CSV            -> a whole country (e.g. the UK)
+  * many CSVs / a dir  -> one CSV per state/province (e.g. the US)
 
 Examples:
     # whole country
-    python -m traveltime_drive_time_comparisons.accuracy_page \\
+    python -m traveltime_drive_time_comparisons.accuracy_page_data \\
         --input ./uk.csv --slug uk --output-dir ./generated/uk
 
-    # state/province country (directory of per-state CSVs)
-    python -m traveltime_drive_time_comparisons.accuracy_page \\
+    # state/province country — a directory of per-state CSVs ...
+    python -m traveltime_drive_time_comparisons.accuracy_page_data \\
         --input ./us/ --slug us --output-dir ./generated/us
+
+    # ... or the CSVs listed explicitly (no shared directory needed)
+    python -m traveltime_drive_time_comparisons.accuracy_page_data \\
+        --input Alabama.csv New_York.csv --slug us --output-dir ./generated/us
 """
 
 import argparse
@@ -24,7 +28,7 @@ import sys
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from traveltime_drive_time_comparisons.accuracy_page.aggregate import (
+from traveltime_drive_time_comparisons.accuracy_page_data.aggregate import (
     AGGREGATE_FILES,
     aggregate,
     dumps,
@@ -45,36 +49,46 @@ def _subdivision_name(csv_path: str) -> str:
     return os.path.splitext(os.path.basename(csv_path))[0].replace("_", " ")
 
 
-def _collect_csv_paths(input_path: str) -> List[str]:
-    if os.path.isfile(input_path):
-        return [input_path]
-    return sorted(glob.glob(os.path.join(input_path, "*.csv")))
+def _collect_csv_paths(inputs: List[str]) -> List[str]:
+    paths: List[str] = []
+    for item in inputs:
+        if os.path.isdir(item):
+            paths.extend(sorted(glob.glob(os.path.join(item, "*.csv"))))
+        elif os.path.isfile(item):
+            paths.append(item)
+    return paths
 
 
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(
-        prog="traveltime_accuracy_page",
+        prog="traveltime_accuracy_page_data",
         description="Generate the accuracy-page JSON aggregates from comparison output.csv files.",
     )
     parser.add_argument(
+        "-i",
         "--input",
         required=True,
-        help="A single output.csv (whole country) or a directory of per-state/province CSVs.",
+        nargs="+",
+        metavar="PATH",
+        help="One or more CSV files and/or directories of CSVs. One CSV = whole country; many = per state/province.",
     )
     parser.add_argument(
+        "-s",
         "--slug",
         required=True,
         help="Country slug for meta.json (e.g. us, au, ca, uk).",
     )
     parser.add_argument(
-        "--output-dir", required=True, help="Folder to write the six JSON files into."
+        "-o",
+        "--output-dir",
+        required=True,
+        help="Folder to write the six JSON files into.",
     )
     args = parser.parse_args(argv)
 
     csv_paths = _collect_csv_paths(args.input)
     if not csv_paths:
-        where = "file" if os.path.isfile(args.input) else "directory"
-        print(f"error: no CSV found at {args.input} ({where}).", file=sys.stderr)
+        print(f"error: no CSV files found in {args.input}.", file=sys.stderr)
         return 2
 
     rows: List[dict] = []

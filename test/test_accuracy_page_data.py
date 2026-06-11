@@ -1,6 +1,6 @@
 import math
 
-from traveltime_drive_time_comparisons.accuracy_page.aggregate import (
+from traveltime_drive_time_comparisons.accuracy_page_data.aggregate import (
     aggregate,
     band_index,
     extract_rows,
