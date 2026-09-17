@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 import aiohttp
 from traveltimepy.requests.common import Coordinates
@@ -42,7 +42,7 @@ class MapboxRequestHandler(BaseRequestHandler):
         route = f"{origin.lng},{origin.lat};{destination.lng},{destination.lat}"  # for Mapbox lat/lng are flipped!
         transport_mode = get_mapbox_specific_mode(mode)
         params = {
-            "depart_at": departure_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "depart_at": format_depart_at(departure_time),
             "access_token": self.api_key,
             "exclude": "ferry",  # by default I think it includes ferries, but for our API we use just driving, without ferries
         }
@@ -91,6 +91,10 @@ class MapboxRequestHandler(BaseRequestHandler):
         except Exception as e:
             logger.error(f"Exception during requesting Mapbox API, {e}")
             return RequestResult(None)
+
+
+def format_depart_at(departure_time: datetime) -> str:
+    return departure_time.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def get_mapbox_specific_mode(mode: Mode) -> str:
