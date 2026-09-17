@@ -43,7 +43,7 @@ You can also disable unwanted APIs by changing the `enabled` value to `false`.
   "traveltime": {
     "app-id": "<your-app-id>",
     "api-key": "<your-api-key>",
-    "max-rpm": "60"
+    "max-rpm": "120"
   },
   "api-providers": [
     {
