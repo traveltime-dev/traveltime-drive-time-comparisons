@@ -8,7 +8,7 @@ You are helping a user benchmark the accuracy of the TravelTime API against the 
 2. **Which routes.** Either (a) a market to use one of the sample files under `inputs/` (e.g. `inputs/europe/United_Kingdom.csv`, `inputs/us/Texas.csv`), (b) a CSV of their own origin-destination pairs, or (c) a CSV of locations with `lat` and `lng` columns to generate pairs from.
 3. **Scale.** How many pairs and how many departure times. Default to 3 departure times (`08:00, 13:00, 18:00`) and the full sample file unless told otherwise.
 4. **Timezone** of the routes, as an IANA ID (e.g. `Europe/London`, `America/New_York`).
-5. **Mode.** Driving (default) or public transport. Public transport needs the code changes in the final section and comes with an important caveat you must pass on to the user.
+5. **Mode.** Driving (default) or public transport. Public transport needs the code changes in the final section.
 
 ## Setup
 
@@ -33,7 +33,7 @@ mkdir -p results
 - User's own OD pairs: ensure the CSV has `origin` and `destination` columns, each a quoted `"lat,lng"` string. Extra columns are ignored.
 - User's own locations: generate pairs with a fixed seed so the run is reproducible.
 
-## Parameters – do not change these
+## Driving parameters – do not change these
 
 The tool already sends the correct like-for-like parameters. Do not modify them:
 
@@ -93,7 +93,7 @@ Do not draw conclusions beyond what the table shows. If the user wants to slice 
 
 The tool is driving-only out of the box, but the plumbing for public transport is mostly there. If the user asks for a public transport comparison, make the four code changes below, then run exactly as for driving (smoke test, cost check, full run). Only Google supports transit among the other providers – set Mapbox, TomTom and HERE to `enabled: false`.
 
-**Before running, tell the user this, in your own words:** for public transport, Google is not ground truth. Transit routing depends entirely on each provider's timetable data, and coverage differs by region. Where TravelTime has more public transport data than Google, TravelTime will return a real, faster journey that Google cannot see – Google may return only a walking route or a much slower one. A gap between the two is therefore evidence of a data-coverage difference, not of one provider being wrong. Suggest the user check [coverage.traveltime.com](https://coverage.traveltime.com) for the market being tested, and report the results with that caveat attached.
+**Before running, tell the user this, in your own words:** for public transport, Google is not ground truth. Transit routing depends entirely on each provider's timetable data, and coverage differs by region. Where TravelTime has more public transport data than Google, TravelTime will return a real, faster journey that Google cannot see – Google may return only a walking route or a much slower one. A gap between the two is therefore evidence of a data-coverage difference, not of one provider being wrong. Suggest the user check [coverage.traveltime.com](https://coverage.traveltime.com) for the market being tested, and report the results with that caveat attached. A TravelTime Relative Time well below 100 is consistent with coverage Google lacks, not an accuracy fault.
 
 ### Change 1 – add a `--mode` flag
 
@@ -119,8 +119,6 @@ and change it to:
 ```python
 tasks = generate_tasks(data, time_instants, request_handlers, mode=Mode(args.mode))
 ```
-
-(`args` is already in scope in that function.)
 
 `--interactive` builds its own `Namespace` in `src/traveltime_drive_time_comparisons/tui.py` rather than going through `parse_args()`, so without a third change it has no `mode` attribute and every interactive run raises `AttributeError`. In `build_args()`, add `mode` to the `argparse.Namespace(...)` call:
 
@@ -158,7 +156,7 @@ and in `send_request()`, add a `range` argument to the `RoutesDepartureSearch(..
 range=FullRange(enabled=True, max_results=1, width=3600) if mode == Mode.PUBLIC_TRANSPORT else None,
 ```
 
-These values are deliberate and match Google's observed transit behaviour: a 30-minute maximum walking time per journey, and a one-hour departure window from which the single best journey is returned. Do not change them. All three `FullRange` fields are required — omitting `max_results` raises a `ValidationError`. `range` is `Optional` and defaults to `None`, so passing `None` for driving is safe.
+These values are deliberate and match Google's observed transit behaviour: a 30-minute maximum walking time per journey, and a one-hour departure window from which the single best journey is returned. Do not change them.
 
 ### Change 3 – Google transit request body
 
@@ -178,8 +176,4 @@ if mode == Mode.DRIVING:
 
 ### Change 4 – run with the flag
 
-Add `--mode public_transport` to every command. Everything else – date (next Wednesday), departure times, timezone, output paths – stays the same. Use output filenames that say `transit` so driving and transit results are not confused.
-
-### Reporting transit results
-
-If TravelTime's Relative Time is well below 100 (consistently faster than Google), say explicitly that this is consistent with TravelTime having routes Google's data does not include. Do not describe a transit gap as an accuracy problem for either provider.
+Add `--mode public_transport` to every command. Use output filenames that say `transit` so driving and transit results are not confused.
