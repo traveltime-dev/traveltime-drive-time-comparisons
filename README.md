@@ -103,6 +103,10 @@ traveltime_drive_time_comparisons --input examples/uk.csv --output output.csv --
     --departure-times "07:00, 10:00, 13:00, 16:00, 19:00" --time-zone-id "Europe/London"
 ```
 
+### Running a comparison with a coding agent
+
+[AGENTS.md](AGENTS.md) is a runbook for coding agents running comparisons with this tool.
+
 ## Console output
 
 The console output contains results when comparing each provider to Google (this part of course relies on Google provider being enabled in the configuration file).
