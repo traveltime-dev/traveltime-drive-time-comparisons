@@ -122,10 +122,15 @@ def build_args(debug: bool = False) -> argparse.Namespace:
         default="05:00, 13:00, 17:00",
         validate=validate_departure_times,
     ).unsafe_ask()
-    time_zone_id = questionary.autocomplete(
-        "Timezone:",
-        choices=pytz.common_timezones,
-    ).unsafe_ask()
+    time_zone_id = (
+        questionary.autocomplete(
+            "Timezone (empty for each route's local time):",
+            choices=pytz.common_timezones,
+        )
+        .unsafe_ask()
+        .strip()
+        or None
+    )
 
     skip_data_gathering = None
     skip_plotting = None
@@ -165,7 +170,7 @@ def build_args(debug: bool = False) -> argparse.Namespace:
     table.add_row("Config", args.config)
     table.add_row("Date", args.date)
     table.add_row("Departure times", args.departure_times)
-    table.add_row("Timezone", args.time_zone_id)
+    table.add_row("Timezone", args.time_zone_id or "Each route's local time")
     if args.skip_data_gathering:
         table.add_row("Skip data gathering", "Yes")
     if args.skip_plotting:

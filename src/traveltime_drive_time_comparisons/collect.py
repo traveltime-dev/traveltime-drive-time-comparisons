@@ -8,6 +8,7 @@ import pytz
 from pandas import DataFrame
 from pytz.tzinfo import BaseTzInfo
 from traveltimepy.requests.common import Coordinates
+from tzfpy import get_tz
 
 from traveltime_drive_time_comparisons.common import (
     Fields,
@@ -103,18 +104,32 @@ def localize_datetime(date: str, time: str, timezone: BaseTzInfo) -> datetime:
     return timezone.localize(datetime_instance)
 
 
+def time_instants_for_origin(
+    origin: str, departure_times: str, date: str, time_zone_id: Optional[str]
+) -> List[datetime]:
+    if not time_zone_id:
+        coordinates = parse_coordinates(origin)
+        time_zone_id = get_tz(coordinates.lng, coordinates.lat)
+    return generate_time_instants(departure_times, date, pytz.timezone(time_zone_id))
+
+
 def generate_tasks(
     data: DataFrame,
-    time_instants: List[datetime],
+    departure_times: str,
+    date: str,
+    time_zone_id: Optional[str],
     request_handlers: Dict[str, BaseRequestHandler],
     mode: Mode,
 ) -> list:
     tasks = []
     for index, row in data.iterrows():
-        for time_instant in time_instants:
+        origin = row[Fields.ORIGIN]
+        for time_instant in time_instants_for_origin(
+            origin, departure_times, date, time_zone_id
+        ):
             for api, request_handler in request_handlers.items():
                 task = fetch_travel_time(
-                    row[Fields.ORIGIN],
+                    origin,
                     row[Fields.DESTINATION],
                     api,
                     time_instant,
@@ -131,10 +146,14 @@ async def collect_travel_times(
     request_handlers: Dict[str, BaseRequestHandler],
     provider_names: List[str],
 ) -> DataFrame:
-    timezone = pytz.timezone(args.time_zone_id)
-    time_instants = generate_time_instants(args.departure_times, args.date, timezone)
-
-    tasks = generate_tasks(data, time_instants, request_handlers, mode=Mode.DRIVING)
+    tasks = generate_tasks(
+        data,
+        args.departure_times,
+        args.date,
+        args.time_zone_id,
+        request_handlers,
+        mode=Mode.DRIVING,
+    )
 
     capitalized_providers_str = ", ".join(
         [get_capitalized_provider_name(provider) for provider in provider_names]
