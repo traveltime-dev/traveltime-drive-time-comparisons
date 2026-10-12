@@ -1,14 +1,28 @@
+import asyncio
 import pytest
 from datetime import datetime
 
+import pandas as pd
 import pytz
 from traveltimepy.requests.common import Coordinates
 
+from traveltime_drive_time_comparisons.api_requests.base_handler import (
+    BaseRequestHandler,
+    RequestResult,
+    create_async_limiter,
+)
 from traveltime_drive_time_comparisons.collect import (
+    generate_tasks,
     generate_time_instants,
     parse_coordinates,
     localize_datetime,
+    time_instants_for_origin,
 )
+from traveltime_drive_time_comparisons.common import Fields
+from traveltime_drive_time_comparisons.config import Mode
+
+TIJUANA = "32.52,-117.03"
+MEXICO_CITY = "19.43,-99.13"
 
 
 def test_generate_time_instants_with_valid_times():
@@ -92,3 +106,41 @@ def test_localize_datetime_with_incorrect_format():
         wrong_time = "3:00 PM"
         timezone = pytz.timezone("US/Pacific")
         localize_datetime(date, wrong_time, timezone)
+
+
+def _local_time(origin, time_zone_id):
+    instants = time_instants_for_origin(origin, "17:00", "2026-09-30", time_zone_id)
+    return instants[0].strftime("%H:%M%z")
+
+
+def test_time_instants_for_origin_uses_the_given_zone_for_every_route():
+    assert _local_time(TIJUANA, "America/Mexico_City") == "17:00-0600"
+    assert _local_time(MEXICO_CITY, "America/Mexico_City") == "17:00-0600"
+
+
+def test_time_instants_for_origin_uses_each_origins_zone_without_one():
+    assert _local_time(TIJUANA, None) == "17:00-0700"
+    assert _local_time(MEXICO_CITY, None) == "17:00-0600"
+
+
+class _ConstantHandler(BaseRequestHandler):
+    def __init__(self):
+        self._rate_limiter = create_async_limiter(6000)
+
+    async def send_request(self, origin, destination, departure_time, mode):
+        return RequestResult(travel_time=60)
+
+
+async def _run(tasks):
+    return await asyncio.gather(*tasks)
+
+
+def test_generate_tasks_departs_at_the_origins_local_time():
+    data = pd.DataFrame({Fields.ORIGIN: [TIJUANA], Fields.DESTINATION: [MEXICO_CITY]})
+    tasks = generate_tasks(
+        data, "17:00", "2026-09-30", None, {"google": _ConstantHandler()}, Mode.DRIVING
+    )
+
+    results = asyncio.run(_run(tasks))
+
+    assert [r[Fields.DEPARTURE_TIME] for r in results] == ["2026-09-30 17:00:00-0700"]

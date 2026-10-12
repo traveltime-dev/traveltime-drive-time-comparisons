@@ -14,7 +14,7 @@ Source code is available on [GitHub](https://github.com/traveltime-dev/traveltim
 
 ## Prerequisites
 
-The tool requires Python 3.9+ installed on your system. You can download it from [here](https://www.python.org/downloads/).
+The tool requires Python 3.11+ installed on your system. You can download it from [here](https://www.python.org/downloads/).
 
 ## Installation
 Create a new virtual environment with a chosen name (here, we'll name it 'env'):
@@ -71,7 +71,7 @@ traveltime_drive_time_comparisons --interactive
 Run the tool directly with command-line arguments:
 ```bash
 traveltime_drive_time_comparisons --input [Input CSV file path] --output [Output CSV file path] \
-    --date [Date (YYYY-MM-DD)] --departure-times [Departure times (HH:MM, HH:MM)] --time-zone-id [Time zone ID] 
+    --date [Date (YYYY-MM-DD)] --departure-times [Departure times (HH:MM, HH:MM)]
 ```
 Required arguments:
 - `--input [Input CSV file path]`: Path to the input file. Input file is required to have a header row and at least one 
@@ -85,10 +85,11 @@ Required arguments:
 - `--date [Date (YYYY-MM-DD)]`: date on which the travel times are gathered. Use a future date, as Google API returns
   errors for past dates (and times). Take into account the time needed to collect the data for provided input.
 - `--departure-times [Departure times (HH:MM)]`: All departure times in `HH:MM` format, separated by comma ",", spaces can be used.
-- `--time-zone-id [Time zone ID]`: non-abbreviated time zone identifier in which the time values are specified. 
-  For example: `Europe/London`. For more information, see [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
 Optional arguments:
+- `--time-zone-id [Time zone ID]`: non-abbreviated time zone identifier in which the departure times are specified,
+  for every route. For example: `Europe/London`. For more information, see [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+  If omitted, each route departs at its origin's local time, which suits inputs spanning several time zones.
 - `--config [Config file path]`: Path to the config file. Default - ./config.json
 - `--accuracy-output [Output CSV file path]`: Path to the output file for the accuracy table. If not defined,
     the table will only be printed to the console.

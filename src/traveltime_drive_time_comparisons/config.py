@@ -68,8 +68,11 @@ def parse_args():
     )
     parser.add_argument(
         "--time-zone-id",
-        required=True,
-        help="Non-abbreviated time zone identifier e.g. Europe/London",
+        required=False,
+        help=(
+            "Non-abbreviated time zone identifier e.g. Europe/London, used for every route. "
+            "If omitted, each route departs at its origin's local time."
+        ),
     )
     parser.add_argument(
         "--config",
